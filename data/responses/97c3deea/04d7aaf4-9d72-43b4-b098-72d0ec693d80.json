@@ -1,0 +1,97 @@
+{
+  "id": "04d7aaf4-9d72-43b4-b098-72d0ec693d80",
+  "quiz_id": "97c3deea",
+  "student_name": "Andreas",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-13T01:26:11.365536Z",
+  "answers": [
+    "The Haight Ashbury is a fun place. Janis Joplin lived there.  Jimi Hendrix lived there. The Summer of Love Happened there."
+  ],
+  "result": {
+    "score": 4,
+    "total": 10,
+    "percent": 40.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 4,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Please provide a history of the Haight Ashbury",
+          "requirements": [
+            "The Summer of Love began in the Haight Ashbury.",
+            "Jimi Hendrix was rumored to live there but he only played concerts there.",
+            "Janis Joplin lived there."
+          ],
+          "essaygrader": {
+            "grade": 40,
+            "reasons": [
+              "Factual error regarding Jimi Hendrix's residence violates a core requirement",
+              "Lacks historical context, analysis, or academic rigor beyond superficial listing",
+              "Uses inappropriate language ('fun place') for academic writing",
+              "Fails to demonstrate understanding of the Summer of Love's significance beyond location",
+              "No evidence of research or critical engagement with sources"
+            ],
+            "coverage": [
+              {
+                "requirement": "The Summer of Love began in the Haight Ashbury.",
+                "addressed": true,
+                "evidence": "Essay states 'The Summer of Love Happened there.'"
+              },
+              {
+                "requirement": "Jimi Hendrix was rumored to live there but he only played concerts there.",
+                "addressed": false,
+                "evidence": "Essay explicitly states 'Jimi Hendrix lived there,' directly contradicting the requirement."
+              },
+              {
+                "requirement": "Janis Joplin lived there.",
+                "addressed": true,
+                "evidence": "Essay states 'Janis Joplin lived there.'"
+              }
+            ],
+            "backend": "ollama",
+            "model_used": "qwen3-vl:30b",
+            "raw_response": "{\"grade\": 40, \"reasons\": [\"Factual error regarding Jimi Hendrix's residence violates a core requirement\", \"Lacks historical context, analysis, or academic rigor beyond superficial listing\", \"Uses inappropriate language ('fun place') for academic writing\", \"Fails to demonstrate understanding of the Summer of Love's significance beyond location\", \"No evidence of research or critical engagement with sources\"], \"coverage\": [{\"requirement\": \"The Summer of Love began in the Haight Ashbury.\", \"addressed\": true, \"evidence\": \"Essay states 'The Summer of Love Happened there.'\"}, {\"requirement\": \"Jimi Hendrix was rumored to live there but he only played concerts there.\", \"addressed\": false, \"evidence\": \"Essay explicitly states 'Jimi Hendrix lived there,' directly contradicting the requirement.\"}, {\"requirement\": \"Janis Joplin lived there.\", \"addressed\": true, \"evidence\": \"Essay states 'Janis Joplin lived there.'\"}], \"domain_analysis\": \"As a historian of 1960s counterculture, this essay demonstrates a critical misunderstanding of key figures' biographies. While Haight-Ashbury was indeed the epicenter of the Summer of Love (1967) and Janis Joplin did reside there briefly during her San Francisco period, Jimi Hendrix never lived in the neighborhood. He performed at venues like the Fillmore West but maintained his primary residence in London during this era. The essay's factual error reflects a lack of engagement with primary sources (e.g., biographies by Charles R. Cross or Tony Scherman) and misrepresents Hendrix's role in the movement. Academic writing requires precise attribution of actions to individuals, especially when distinguishing rumor from verified fact.\", \"max_points\": 100, \"deductions\": [{\"reason\": \"Factual error: Incorrectly states Jimi Hendrix lived in Haight-Ashbury\", \"points\": 25, \"requirement\": \"Jimi Hendrix was rumored to live there but he only played concerts there.\", \"evidence\": \"Essay states: 'Jimi Hendrix lived there.'\", \"category\": \"factual_error\"}, {\"reason\": \"Lack of historical depth: Fails to contextualize the Summer of Love beyond location\", \"points\": 20, \"requirement\": null, \"evidence\": \"No explanation of cultural significance, key events (e.g., 'Human Be-In'), or social impact.\", \"category\": \"clarity/style\"}, {\"reason\": \"Inappropriate academic tone: Uses colloquial language ('fun place')\", \"points\": 15, \"requirement\": null, \"evidence\": \"First sentence: 'The Haight Ashbury is a fun place.'\", \"category\": \"clarity/style\"}, {\"reason\": \"Superficial coverage: Lists requirements without evidence or analysis\", \"points\": 10, \"requirement\": null, \"evidence\": \"No citations, dates, or specific examples to support claims.\", \"category\": \"partial_coverage\"}], \"total_deductions\": 70}",
+            "semantic_similarity": null,
+            "domain_analysis": "As a historian of 1960s counterculture, this essay demonstrates a critical misunderstanding of key figures' biographies. While Haight-Ashbury was indeed the epicenter of the Summer of Love (1967) and Janis Joplin did reside there briefly during her San Francisco period, Jimi Hendrix never lived in the neighborhood. He performed at venues like the Fillmore West but maintained his primary residence in London during this era. The essay's factual error reflects a lack of engagement with primary sources (e.g., biographies by Charles R. Cross or Tony Scherman) and misrepresents Hendrix's role in the movement. Academic writing requires precise attribution of actions to individuals, especially when distinguishing rumor from verified fact.",
+            "max_points": 100,
+            "deductions": [
+              {
+                "reason": "Factual error: Incorrectly states Jimi Hendrix lived in Haight-Ashbury",
+                "points": 25,
+                "requirement": "Jimi Hendrix was rumored to live there but he only played concerts there.",
+                "evidence": "Essay states: 'Jimi Hendrix lived there.'",
+                "category": "factual_error"
+              },
+              {
+                "reason": "Lack of historical depth: Fails to contextualize the Summer of Love beyond location",
+                "points": 20,
+                "evidence": "No explanation of cultural significance, key events (e.g., 'Human Be-In'), or social impact.",
+                "category": "clarity/style"
+              },
+              {
+                "reason": "Inappropriate academic tone: Uses colloquial language ('fun place')",
+                "points": 15,
+                "evidence": "First sentence: 'The Haight Ashbury is a fun place.'",
+                "category": "clarity/style"
+              },
+              {
+                "reason": "Superficial coverage: Lists requirements without evidence or analysis",
+                "points": 10,
+                "evidence": "No citations, dates, or specific examples to support claims.",
+                "category": "partial_coverage"
+              },
+              {
+                "reason": "Reconciliation: deductions (70) did not equal max_points-grade (60); keeping grade and recording actual difference.",
+                "points": 0,
+                "category": "reconciliation"
+              }
+            ],
+            "total_deductions": 60
+          }
+        }
+      }
+    ]
+  }
+}

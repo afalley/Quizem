@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+  <article>
+    <h2>Quiz Details</h2>
+    <p>For each question, choose the type. For Multiple Choice, provide options and the correct option number. For Essay, provide grading requirements (one per line) and max points.</p>
+    <form method="post">
+      <input type="hidden" name="wizard_step" value="2">
+      <input type="hidden" name="title" value="{{ title }}">
+      <input type="hidden" name="teacher_email" value="{{ teacher_email }}">
+      <input type="hidden" name="num_questions" value="{{ num_questions }}">
+
+      {% for i in idx_list %}
+        <fieldset>
+          <legend>Question {{ i + 1 }}</legend>
+          <label>
+            Type
+            <select name="q_type_{{ i }}">
+              <option value="mc">Multiple Choice</option>
+              <option value="essay">Essay</option>
+            </select>
+          </label>
+          <label>
+            Question Text
+            <textarea name="q_text_{{ i }}" rows="3" required placeholder="Type the question here..."></textarea>
+          </label>
+          <div class="mc-fields">
+            <h4>Multiple Choice Fields</h4>
+            <label>
+              Options (one per line, or separated by commas/semicolons)
+              <textarea name="q_options_{{ i }}" rows="4" placeholder="Option A\nOption B\nOption C"></textarea>
+            </label>
+            <label>
+              Correct Option Number (1-based)
+              <input type="number" name="q_correct_{{ i }}" min="1" placeholder="e.g., 2">
+            </label>
+            <label>
+              Points for this question (default 1)
+              <input type="number" name="q_points_{{ i }}" min="1" placeholder="1">
+            </label>
+          </div>
+          <div class="essay-fields">
+            <h4>Essay Fields</h4>
+            <label>
+              Requirements (one per line)
+              <textarea name="q_requirements_{{ i }}" rows="4" placeholder="Requirement 1\nRequirement 2\nRequirement 3"></textarea>
+            </label>
+            <label>
+              Max Points (default 10)
+              <input type="number" name="q_max_points_{{ i }}" min="1" placeholder="10">
+            </label>
+          </div>
+        </fieldset>
+      {% endfor %}
+
+      <footer>
+        <button type="submit">Create Quiz</button>
+        <a role="button" class="secondary" href="{{ url_for('teacher_create') }}">Back</a>
+      </footer>
+    </form>
+  </article>
+  <script>
+    (function() {
+      function updateFieldset(fs) {
+        var typeSel = fs.querySelector('select[name^="q_type_"]');
+        if (!typeSel) return;
+        var mc = fs.querySelector('.mc-fields');
+        var essay = fs.querySelector('.essay-fields');
+        if (!mc || !essay) return;
+
+        var setDisplay = function() {
+          if (typeSel.value === 'essay') {
+            mc.style.display = 'none';
+            essay.style.display = '';
+          } else {
+            mc.style.display = '';
+            essay.style.display = 'none';
+          }
+        };
+
+        typeSel.addEventListener('change', setDisplay);
+        setDisplay();
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('fieldset').forEach(updateFieldset);
+      });
+    })();
+  </script>
+{% endblock %}

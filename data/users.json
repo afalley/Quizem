@@ -1,0 +1,14 @@
+{
+  "teacher": {
+    "role": "teacher",
+    "password_hash": "scrypt:32768:8:1$RFGd9WSROurIQIfB$403561ff48cb92c389fba67a13393500d4211794b2f114f2e5e6518402b19356ca45fcd0ff91fc56857918b17373763fc69eaf5daaf34968bef137df31d3d198"
+  },
+  "student": {
+    "role": "student",
+    "password_hash": "scrypt:32768:8:1$7dxTtDhURaIzV25V$4aefb229417a902cadcf7f873b47a9c495ff2d5af6802348dd1a595b5662c0d22f3df2f71dff1d23f321c7e8d708a5bcaa7fa3946acfdf80a78e4b8a4c19d5f4"
+  },
+  "Andy": {
+    "role": "student",
+    "password_hash": "scrypt:32768:8:1$tAbrO3CoaGjvG80A$5fad4096738c9bdcc9870a76350b9f542594b5c585874cb24c97bcdc5b78f44823946d56b379650310a6d60b66ddcb91d8eed78cb9edecc0de26b07f26eebd7b"
+  }
+}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+  <article>
+    <h2>Available Quizzes</h2>
+    {% if quizzes %}
+      <ul>
+        {% for q in quizzes %}
+          <li>
+            <a href="{{ url_for('take_quiz', quiz_id=q.id) }}">{{ q.title }}</a>
+            <small style="color: #d4a373">Created: {{ q.created_at }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No quizzes yet.</p>
+    {% endif %}
+  </article>
+
+  <article>
+    <h3>Teacher Links</h3>
+    {% if current_user and current_user.role == 'teacher' %}
+      <p><a href="{{ url_for('teacher_create') }}">Create a new quiz</a> or <a href="{{ url_for('manage_users') }}">manage students</a>.</p>
+    {% else %}
+      <p><a href="{{ url_for('login') }}">Log in</a> as a teacher to create quizzes and manage students.</p>
+    {% endif %}
+  </article>
+{% endblock %}

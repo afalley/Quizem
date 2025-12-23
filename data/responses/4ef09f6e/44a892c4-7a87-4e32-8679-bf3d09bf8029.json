@@ -1,0 +1,88 @@
+{
+  "id": "44a892c4-7a87-4e32-8679-bf3d09bf8029",
+  "quiz_id": "4ef09f6e",
+  "student_name": "",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-22T10:38:22.543158Z",
+  "answers": [
+    "The Haight Ashbury is a fun place. Hippies lived there. Janis Joplin was a hippie.\r\nThe summer of love began there. Jimi Hendrix played there.\r\nThe Grateful Dead lived there."
+  ],
+  "result": {
+    "score": 5,
+    "total": 10,
+    "percent": 50.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 5,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Give me the history of the Haight Ashbury neighborhood",
+          "requirements": [
+            "The Summer of Love began there.",
+            "Jimi Hendrix was rumored to live there but in fact only played concerts there.",
+            "Janis Joplin lived there."
+          ],
+          "essaygrader": {
+            "grade": 52,
+            "reasons": [
+              "Essay partially addresses the requirements but lacks depth and detail.",
+              "Some factual inaccuracies are present, such as stating that The Grateful Dead 'lived' in Haight Ashbury instead of performing there.",
+              "The essay is somewhat off-topic with irrelevant information about hippies."
+            ],
+            "coverage": [
+              {
+                "requirement": "The Summer of Love began there.",
+                "addressed": true,
+                "evidence": "The summer of love began there."
+              },
+              {
+                "requirement": "Jimi Hendrix was rumored to live there but in fact only played concerts there.",
+                "addressed": false,
+                "evidence": "Jimi Hendrix played there (but did not mention living there)."
+              },
+              {
+                "requirement": "Janis Joplin lived there.",
+                "addressed": true,
+                "evidence": "Janis Joplin was a hippie. Janis Joplin lived there."
+              }
+            ],
+            "backend": "ollama",
+            "model_used": "qwen2.5:14b-instruct",
+            "raw_response": "{\"grade\": 52, \"reasons\": [\"Essay partially addresses the requirements but lacks depth and detail.\", \"Some factual inaccuracies are present, such as stating that The Grateful Dead 'lived' in Haight Ashbury instead of performing there.\", \"The essay is somewhat off-topic with irrelevant information about hippies.\"], \"coverage\": [{\"requirement\": \"The Summer of Love began there.\", \"addressed\": true, \"evidence\": \"The summer of love began there.\"}, {\"requirement\": \"Jimi Hendrix was rumored to live there but in fact only played concerts there.\", \"addressed\": false, \"evidence\": \"Jimi Hendrix played there (but did not mention living there).\"}, {\"requirement\": \"Janis Joplin lived there.\", \"addressed\": true, \"evidence\": \"Janis Joplin was a hippie. Janis Joplin lived there.\"}], \"domain_analysis\": \"The essay touches on key aspects of the Haight Ashbury district during the Summer of Love but lacks specificity and accuracy. While it correctly identifies that Janis Joplin lived in Haight Ashbury, it incorrectly states that Jimi Hendrix only played concerts there without mentioning he was rumored to live there. Additionally, the statement about The Grateful Dead living there is inaccurate; they were a performing band rather than residents.\", \"max_points\": 100, \"deductions\": [{\"reason\": \"Did not mention that Jimi Hendrix was rumored to live in Haight Ashbury.\", \"points\": 25, \"requirement\": \"Jimi Hendrix was rumored to live there but in fact only played concerts there.\", \"evidence\": null, \"category\": \"missing_requirement\"}, {\"reason\": \"Incorrectly stated that The Grateful Dead lived in Haight Ashbury instead of performing there.\", \"points\": 15, \"requirement\": null, \"evidence\": \"The Grateful Dead lived there\", \"category\": \"factual_error\"}, {\"reason\": \"Irrelevant information about hippies detracts from the essay's focus.\", \"points\": 10, \"requirement\": null, \"evidence\": \"Hippies lived there. Janis Joplin was a hippie.\", \"category\": \"clarity/style\"}], \"total_deductions\": 50}",
+            "semantic_similarity": 0.7933300540723645,
+            "domain_analysis": "The essay touches on key aspects of the Haight Ashbury district during the Summer of Love but lacks specificity and accuracy. While it correctly identifies that Janis Joplin lived in Haight Ashbury, it incorrectly states that Jimi Hendrix only played concerts there without mentioning he was rumored to live there. Additionally, the statement about The Grateful Dead living there is inaccurate; they were a performing band rather than residents.",
+            "max_points": 100,
+            "deductions": [
+              {
+                "reason": "Did not mention that Jimi Hendrix was rumored to live in Haight Ashbury.",
+                "points": 25,
+                "requirement": "Jimi Hendrix was rumored to live there but in fact only played concerts there.",
+                "category": "missing_requirement"
+              },
+              {
+                "reason": "Incorrectly stated that The Grateful Dead lived in Haight Ashbury instead of performing there.",
+                "points": 15,
+                "evidence": "The Grateful Dead lived there",
+                "category": "factual_error"
+              },
+              {
+                "reason": "Irrelevant information about hippies detracts from the essay's focus.",
+                "points": 10,
+                "evidence": "Hippies lived there. Janis Joplin was a hippie.",
+                "category": "clarity/style"
+              },
+              {
+                "reason": "Reconciliation: deductions (50) did not equal max_points-grade (48); keeping grade and recording actual difference.",
+                "points": 0,
+                "category": "reconciliation"
+              }
+            ],
+            "total_deductions": 48
+          }
+        }
+      }
+    ]
+  }
+}

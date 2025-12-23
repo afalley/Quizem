@@ -1,0 +1,63 @@
+{
+  "id": "6f1a764a-e068-40da-b173-e0edda78f800",
+  "quiz_id": "97c3deea",
+  "student_name": "Andreas",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-11T01:13:12.730376Z",
+  "answers": [
+    "The hippie movement began in the Haight Ashbury.\r\nJimi Hendrix live there.\r\nJanis Joplin lived there."
+  ],
+  "result": {
+    "score": 10,
+    "total": 10,
+    "percent": 100.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 10,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Please provide a history of the Haight Ashbury",
+          "requirements": [
+            "The Summer of Love began in the Haight Ashbury.",
+            "Jimi Hendrix was rumored to live there but he only played concerts there.",
+            "Janis Joplin lived there."
+          ],
+          "essaygrader": {
+            "grade": 100,
+            "reasons": [
+              "Local model unavailable or call failed; applied heuristic grading.",
+              "Reason: URLError: <urlopen error [Errno 61] Connection refused>"
+            ],
+            "coverage": [
+              {
+                "requirement": "The Summer of Love began in the Haight Ashbury.",
+                "addressed": true,
+                "evidence": "...the hippie movement began in the haight ashbury."
+              },
+              {
+                "requirement": "Jimi Hendrix was rumored to live there but he only played concerts there.",
+                "addressed": true,
+                "evidence": "...jimi hendrix live there."
+              },
+              {
+                "requirement": "Janis Joplin lived there.",
+                "addressed": true,
+                "evidence": "...janis joplin lived there."
+              }
+            ],
+            "backend": "fallback",
+            "model_used": null,
+            "raw_response": null,
+            "semantic_similarity": null,
+            "domain_analysis": null,
+            "max_points": 100,
+            "deductions": [],
+            "total_deductions": 0
+          }
+        }
+      }
+    ]
+  }
+}

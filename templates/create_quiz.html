@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+  <article>
+    <h2>Create a New Quiz</h2>
+    <form method="post">
+      <input type="hidden" name="wizard_step" value="1">
+      <label>
+        Title
+        <input name="title" placeholder="e.g., Algebra Basics" required>
+      </label>
+      <label>
+        Teacher Email (where submissions will be sent)
+        <input type="email" name="teacher_email" value="{{ default_teacher_email }}" placeholder="teacher@example.com">
+      </label>
+      <label>
+        Number of Questions
+        <input type="number" name="num_questions" min="1" max="50" value="1" required>
+      </label>
+      <small>After clicking Next, you'll enter each question. You can choose Multiple Choice or Essay (graded by the local essaygrader).</small>
+      <footer>
+        <button type="submit">Next</button>
+        <a role="button" class="secondary" href="{{ url_for('index') }}">Cancel</a>
+      </footer>
+    </form>
+  </article>
+{% endblock %}

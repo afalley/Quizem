@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+  <article>
+    <h2>{{ quiz.title }}</h2>
+    <form method="post" action="{{ url_for('submit_quiz', quiz_id=quiz.id) }}">
+      <label>
+        Your Name
+        <input name="student_name" placeholder="Jane Doe">
+      </label>
+      <label>
+        Your Email (optional)
+        <input type="email" name="student_email" placeholder="you@example.com">
+      </label>
+
+      <hr>
+
+      {% for q in quiz.questions %}
+        {% set q_index = loop.index0 %}
+        {% set qtype = (q.type or 'mc')|lower %}
+        <fieldset>
+          <legend>Q{{ loop.index }}. {{ q.text }}</legend>
+          {% if qtype == 'essay' %}
+            <label>
+              Your Answer (essay)
+              <textarea name="q_{{ q_index }}" rows="6" placeholder="Write your essay response here..."></textarea>
+            </label>
+            {% if q.requirements %}
+              <details>
+                <summary>Grading Requirements (click to view)</summary>
+                <ul>
+                  {% for r in q.requirements %}
+                    <li>{{ r }}</li>
+                  {% endfor %}
+                </ul>
+              </details>
+            {% endif %}
+          {% else %}
+            {% for opt in q.options %}
+              <label>
+                <input type="radio" name="q_{{ q_index }}" value="{{ loop.index0 }}">
+                {{ opt }}
+              </label>
+            {% endfor %}
+          {% endif %}
+        </fieldset>
+      {% endfor %}
+
+      <footer>
+        <button type="submit">Submit</button>
+        <a role="button" class="secondary" href="{{ url_for('index') }}">Cancel</a>
+      </footer>
+    </form>
+  </article>
+{% endblock %}

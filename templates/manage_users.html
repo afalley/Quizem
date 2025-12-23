@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+  <article>
+    <h2>Manage Students</h2>
+
+    <section>
+      <h3>Add Student</h3>
+      <form method="post">
+        <input type="hidden" name="action" value="add">
+        <label>
+          Username
+          <input type="text" name="username" placeholder="e.g., alice" required>
+        </label>
+        <label>
+          Password (optional; default is "student")
+          <input type="text" name="password" placeholder="student">
+        </label>
+        <button type="submit">Add</button>
+      </form>
+    </section>
+
+    <section>
+      <h3>Existing Students</h3>
+      {% if students %}
+        <ul>
+          {% for s in students %}
+            <li>
+              <strong>{{ s }}</strong>
+              <form method="post" style="display:inline">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="username" value="{{ s }}">
+                <button type="submit" class="secondary">Delete</button>
+              </form>
+              <form method="post" style="display:inline; margin-left: 1rem;">
+                <input type="hidden" name="action" value="reset">
+                <input type="hidden" name="username" value="{{ s }}">
+                <input type="text" name="password" placeholder="new password" required>
+                <button type="submit">Set Password</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No students yet.</p>
+      {% endif %}
+    </section>
+
+  </article>
+{% endblock %}

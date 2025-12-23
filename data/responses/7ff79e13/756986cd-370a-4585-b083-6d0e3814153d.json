@@ -1,0 +1,63 @@
+{
+  "id": "756986cd-370a-4585-b083-6d0e3814153d",
+  "quiz_id": "7ff79e13",
+  "student_name": "Andreas",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-13T00:44:12.692011Z",
+  "answers": [
+    "The Haight Ashbury is a wonderful community. The Summer of Love began there.\r\nThe Grateful Dead lived there.\r\nJanis Joplin lived there."
+  ],
+  "result": {
+    "score": 10,
+    "total": 10,
+    "percent": 100.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 10,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Give me a history of the Haight Ashbury",
+          "requirements": [
+            "The Summer of Love began in the Haight Ashbury.",
+            "The band The Grateful Dead lived in the Haight Ashbury before moving to Marin.",
+            "Janis Joplin lived there."
+          ],
+          "essaygrader": {
+            "grade": 100,
+            "reasons": [
+              "Local model unavailable or call failed; applied heuristic grading.",
+              "Reason: HTTPError: HTTP Error 404: Not Found"
+            ],
+            "coverage": [
+              {
+                "requirement": "The Summer of Love began in the Haight Ashbury.",
+                "addressed": true,
+                "evidence": "...the haight ashbury is a wonderful community."
+              },
+              {
+                "requirement": "The band The Grateful Dead lived in the Haight Ashbury before moving to Marin.",
+                "addressed": true,
+                "evidence": "...the haight ashbury is a wonderful community."
+              },
+              {
+                "requirement": "Janis Joplin lived there.",
+                "addressed": true,
+                "evidence": "...janis joplin lived there."
+              }
+            ],
+            "backend": "fallback",
+            "model_used": null,
+            "raw_response": null,
+            "semantic_similarity": null,
+            "domain_analysis": null,
+            "max_points": 100,
+            "deductions": [],
+            "total_deductions": 0
+          }
+        }
+      }
+    ]
+  }
+}

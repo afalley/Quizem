@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+  <article>
+    <h2>Thank you{% if student_name %}, {{ student_name }}{% endif %}!</h2>
+    <p>Your submission has been received.</p>
+    <p>Score: <strong>{{ result.score }}/{{ result.total }}</strong> ({{ result.percent }}%)</p>
+
+    {% if result.per_question %}
+      <h3>Breakdown</h3>
+      <ol>
+        {% for pq in result.per_question %}
+          <li>
+            <strong>{{ pq.type|upper }}</strong> — Awarded {{ pq.awarded }}/{{ pq.max_points }}
+            {% if pq.type == 'essay' %}
+              {% set eg = pq.details.essaygrader %}
+              {% if eg and eg.deductions and eg.total_deductions and eg.max_points %}
+                <div>
+                  <strong>Deductions:</strong> {{ eg.total_deductions }} of {{ eg.max_points }} point(s) lost
+                </div>
+                <ul>
+                  {# Show the concrete reasons for deductions directly to the student #}
+                  {% for d in eg.deductions %}
+                    <li>
+                      -{{ d.points }}: {{ d.reason }}{% if d.category %} <span class="muted">[{{ d.category }}]</span>{% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% elif eg and (eg.total_deductions == 0 or eg.total_deductions == '0') %}
+                <div class="muted">No points were deducted for this essay.</div>
+              {% endif %}
+            {% endif %}
+            {% if pq.type == 'mc' %}
+              <div class="muted">
+                {% if pq.details.selected_index is not none %}
+                  Selected option index: {{ pq.details.selected_index }}
+                {% else %}
+                  No answer selected.
+                {% endif %}
+              </div>
+            {% else %}
+              {% if eg %}
+                <details>
+                  <summary>Essay feedback (graded via {{ eg.backend }})</summary>
+                  <p><strong>Reasons:</strong></p>
+                  <ul>
+                    {% for r in eg.reasons %}
+                      <li>{{ r }}</li>
+                    {% endfor %}
+                  </ul>
+                  {% if eg.deductions %}
+                    <p><strong>Deductions (max {{ eg.max_points }}; total deducted {{ eg.total_deductions }}):</strong></p>
+                    <ul>
+                      {% for d in eg.deductions %}
+                        <li>
+                          -{{ d.points }}: {{ d.reason }}
+                          {% if d.category %}<span class="muted">[{{ d.category }}]</span>{% endif %}
+                          {% if d.requirement %}<div class="muted">Requirement: {{ d.requirement }}</div>{% endif %}
+                          {% if d.evidence %}<div class="muted">Evidence: {{ d.evidence }}</div>{% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                  {% if eg.coverage %}
+                    <p><strong>Requirement coverage:</strong></p>
+                    <ul>
+                      {% for c in eg.coverage %}
+                        <li>
+                          <em>{{ c.requirement }}</em> —
+                          {% if c.addressed %}addressed{% else %}not addressed{% endif %}
+                          {% if c.evidence %} (evidence: {{ c.evidence }}){% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </details>
+              {% endif %}
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+    {% endif %}
+    <p><a href="{{ url_for('index') }}">Back to Home</a></p>
+  </article>
+{% endblock %}

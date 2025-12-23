@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or 'QuizMaker' }}</title>
+  <meta name="theme-color" content="#d4a373">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <style>
+    :root {
+      /* QuizMaker palette */
+      --qm-1: #ccd5ae; /* olive light */
+      --qm-2: #e9edc9; /* pale green */
+      --qm-3: #fefae0; /* cream */
+      --qm-4: #faedcd; /* light sand */
+      --qm-5: #d4a373; /* warm brown (accent) */
+      --qm-5-pressed: #b88352; /* darker warm brown (pressed) */
+      /* Pico overrides */
+      --pico-primary: var(--qm-5);
+      --pico-primary-inverse: var(--qm-3);
+    }
+    html, body { background: var(--qm-3); }
+    body { color: var(--qm-5); }
+    main { max-width: 880px; margin: 2rem auto; }
+    header { border-bottom: 4px solid var(--qm-5); margin-bottom: 1.5rem; }
+    header h1 { color: var(--qm-5); margin-bottom: .25rem; }
+    nav ul { display: flex; gap: 1rem; list-style: none; padding: 0; }
+    nav a { color: var(--qm-5); }
+    nav a:hover { color: var(--qm-1); }
+    a { color: var(--qm-5); }
+    a:hover { color: var(--qm-1); }
+    button, [role="button"], input[type="submit"] {
+      background-color: var(--qm-5) !important;
+      border-color: var(--qm-5) !important;
+      color: var(--qm-3) !important;
+    }
+    button:active, [role="button"]:active, input[type="submit"]:active {
+      background-color: var(--qm-5-pressed) !important;
+      border-color: var(--qm-5-pressed) !important;
+    }
+    .secondary {
+      background: transparent !important;
+      border: 2px solid var(--qm-1) !important;
+      color: var(--qm-5) !important;
+    }
+    .secondary:active {
+      background-color: var(--qm-1) !important;
+      border-color: var(--qm-1) !important;
+      color: var(--qm-5) !important;
+    }
+    fieldset legend { color: var(--qm-5); }
+    .flash { padding: .75rem 1rem; border-radius: .5rem; margin-bottom: 1rem; }
+    .flash.error { background: var(--qm-4); color: var(--qm-5); }
+    .flash.success { background: var(--qm-2); color: var(--qm-5); }
+    code { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>{{ title or 'QuizMaker' }}</h1>
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          {% if current_user and current_user.role == 'teacher' %}
+          <li><a href="{{ url_for('teacher_create') }}">Create Quiz</a></li>
+          <li><a href="{{ url_for('manage_users') }}">Manage Users</a></li>
+          {% endif %}
+          <li style="margin-left:auto"></li>
+          {% if current_user %}
+            <li><small>Signed in as {{ current_user.username }} ({{ current_user.role }})</small></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+          {% else %}
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

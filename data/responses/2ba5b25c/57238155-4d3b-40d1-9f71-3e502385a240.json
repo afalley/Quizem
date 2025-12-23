@@ -1,0 +1,63 @@
+{
+  "id": "57238155-4d3b-40d1-9f71-3e502385a240",
+  "quiz_id": "2ba5b25c",
+  "student_name": "Andreas",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-11T00:46:52.451523Z",
+  "answers": [
+    "The Haight is where the Hippie movement started.\r\nJanis Joplin lived there.\r\nJimi Hendrix sometimes played there."
+  ],
+  "result": {
+    "score": 10,
+    "total": 10,
+    "percent": 100.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 10,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Tell me the history of the Haight Ashbury",
+          "requirements": [
+            "The Haight was the home to the Summer of Love.",
+            "Jimi Hendrix was rumored to have lived in the neighborhood but in fact only played there.",
+            "Janis Joplin lived there."
+          ],
+          "essaygrader": {
+            "grade": 100,
+            "reasons": [
+              "Local model unavailable or call failed; applied heuristic grading.",
+              "Reason: URLError: <urlopen error [Errno 61] Connection refused>"
+            ],
+            "coverage": [
+              {
+                "requirement": "The Haight was the home to the Summer of Love.",
+                "addressed": true,
+                "evidence": "...the haight is where the hippie movement started."
+              },
+              {
+                "requirement": "Jimi Hendrix was rumored to have lived in the neighborhood but in fact only played there.",
+                "addressed": true,
+                "evidence": "...jimi hendrix sometimes played there."
+              },
+              {
+                "requirement": "Janis Joplin lived there.",
+                "addressed": true,
+                "evidence": "...janis joplin lived there."
+              }
+            ],
+            "backend": "fallback",
+            "model_used": null,
+            "raw_response": null,
+            "semantic_similarity": null,
+            "domain_analysis": null,
+            "max_points": 100,
+            "deductions": [],
+            "total_deductions": 0
+          }
+        }
+      }
+    ]
+  }
+}

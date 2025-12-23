@@ -1,0 +1,69 @@
+{
+  "id": "3552b758-919f-4826-9443-a433c8cb00e6",
+  "quiz_id": "dde83eba",
+  "student_name": "Andreas",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-20T01:45:28.095601Z",
+  "answers": [
+    "The Haight Ashbury is great place. The summer of love began there.\r\nJanis Joplin and Jimi Hendrix lived there.\r\nThe Grateful Dead played there."
+  ],
+  "result": {
+    "score": 10,
+    "total": 10,
+    "percent": 100.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 10,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Please provide a history of the Haight Ashbury",
+          "requirements": [
+            "The Summer of Love began in the Haight Ashbury",
+            "Janis Joplin lived in the Haight Ashbury",
+            "Jimi Hendrix played a concert there but didn't live there.",
+            "The Grateful Dead played in the park."
+          ],
+          "essaygrader": {
+            "grade": 100,
+            "reasons": [
+              "Local model unavailable or call failed; applied heuristic grading.",
+              "Reason: HTTPError: HTTP Error 404: Not Found"
+            ],
+            "coverage": [
+              {
+                "requirement": "The Summer of Love began in the Haight Ashbury",
+                "addressed": true,
+                "evidence": "...the haight ashbury is great place. the summer of love began there."
+              },
+              {
+                "requirement": "Janis Joplin lived in the Haight Ashbury",
+                "addressed": true,
+                "evidence": "...janis joplin and jimi hendrix lived there."
+              },
+              {
+                "requirement": "Jimi Hendrix played a concert there but didn't live there.",
+                "addressed": true,
+                "evidence": "...janis joplin and jimi hendrix lived there."
+              },
+              {
+                "requirement": "The Grateful Dead played in the park.",
+                "addressed": true,
+                "evidence": "...the haight ashbury is great place. the summer of love began there."
+              }
+            ],
+            "backend": "fallback",
+            "model_used": null,
+            "raw_response": null,
+            "semantic_similarity": null,
+            "domain_analysis": null,
+            "max_points": 100,
+            "deductions": [],
+            "total_deductions": 0
+          }
+        }
+      }
+    ]
+  }
+}

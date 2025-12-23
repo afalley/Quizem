@@ -1,0 +1,18 @@
+{
+  "id": "86e55287",
+  "title": "Blah1",
+  "teacher_email": "andreas.falley@gmail.com",
+  "created_at": "2025-12-11T01:08:23.921508Z",
+  "questions": [
+    {
+      "type": "essay",
+      "text": "Give me the history of the Haight Ashbury.",
+      "requirements": [
+        "The Summer of Love began in the Haight Ashbury.",
+        "Janis Joplin lived there.",
+        "Jimi played there but didn't live there."
+      ],
+      "max_points": 10
+    }
+  ]
+}

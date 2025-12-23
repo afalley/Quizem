@@ -1,0 +1,82 @@
+{
+  "id": "565fa76d-dd73-439d-baa9-7d7bbfe924a2",
+  "quiz_id": "4ef09f6e",
+  "student_name": "",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-22T10:38:38.565397Z",
+  "answers": [
+    "The Haight Ashbury is a fun place. Hippies lived there. Janis Joplin was a hippie.\r\nThe summer of love began there. Jimi Hendrix played there.\r\nThe Grateful Dead lived there."
+  ],
+  "result": {
+    "score": 6,
+    "total": 10,
+    "percent": 60.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 6,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Give me the history of the Haight Ashbury neighborhood",
+          "requirements": [
+            "The Summer of Love began there.",
+            "Jimi Hendrix was rumored to live there but in fact only played concerts there.",
+            "Janis Joplin lived there."
+          ],
+          "essaygrader": {
+            "grade": 58,
+            "reasons": [
+              "Essay partially meets the requirements but lacks depth and accuracy.",
+              "Some factual errors and contradictions are present."
+            ],
+            "coverage": [
+              {
+                "requirement": "The Summer of Love began there.",
+                "addressed": true,
+                "evidence": "The summer of love began there."
+              },
+              {
+                "requirement": "Jimi Hendrix was rumored to live there but in fact only played concerts there.",
+                "addressed": false,
+                "evidence": "Jimi Hendrix played there."
+              },
+              {
+                "requirement": "Janis Joplin lived there.",
+                "addressed": true,
+                "evidence": "Janis Joplin was a hippie. Janis Joplin lived there."
+              }
+            ],
+            "backend": "ollama",
+            "model_used": "qwen2.5:14b-instruct",
+            "raw_response": "{\"grade\": 58, \"reasons\": [\"Essay partially meets the requirements but lacks depth and accuracy.\", \"Some factual errors and contradictions are present.\"], \"coverage\": [{\"requirement\": \"The Summer of Love began there.\", \"addressed\": true, \"evidence\": \"The summer of love began there.\"}, {\"requirement\": \"Jimi Hendrix was rumored to live there but in fact only played concerts there.\", \"addressed\": false, \"evidence\": \"Jimi Hendrix played there.\"}, {\"requirement\": \"Janis Joplin lived there.\", \"addressed\": true, \"evidence\": \"Janis Joplin was a hippie. Janis Joplin lived there.\"}], \"domain_analysis\": \"The essay touches on the key events and figures associated with Haight Ashbury during the Summer of Love but lacks depth in its analysis and accuracy regarding Jimi Hendrix's presence. The statement about the Grateful Dead living there is not aligned with the requirements and introduces an off-topic element.\", \"max_points\": 100, \"deductions\": [{\"reason\": \"Jimi Hendrix was only rumored to live there but in fact played concerts.\", \"points\": 25, \"requirement\": \"Jimi Hendrix was rumored to live there but in fact only played concerts there.\", \"evidence\": \"Jimi Hendrix played there.\", \"category\": \"factual_error\"}, {\"reason\": \"The essay introduces an off-topic element about the Grateful Dead living there.\", \"points\": 10, \"requirement\": null, \"evidence\": \"The Grateful Dead lived there.\", \"category\": \"off_topic\"}], \"total_deductions\": 35}",
+            "semantic_similarity": 0.7933300540723645,
+            "domain_analysis": "The essay touches on the key events and figures associated with Haight Ashbury during the Summer of Love but lacks depth in its analysis and accuracy regarding Jimi Hendrix's presence. The statement about the Grateful Dead living there is not aligned with the requirements and introduces an off-topic element.",
+            "max_points": 100,
+            "deductions": [
+              {
+                "reason": "Jimi Hendrix was only rumored to live there but in fact played concerts.",
+                "points": 25,
+                "requirement": "Jimi Hendrix was rumored to live there but in fact only played concerts there.",
+                "evidence": "Jimi Hendrix played there.",
+                "category": "factual_error"
+              },
+              {
+                "reason": "The essay introduces an off-topic element about the Grateful Dead living there.",
+                "points": 10,
+                "evidence": "The Grateful Dead lived there.",
+                "category": "off_topic"
+              },
+              {
+                "reason": "Reconciliation: deductions (35) did not equal max_points-grade (42); keeping grade and recording actual difference.",
+                "points": 7,
+                "category": "reconciliation"
+              }
+            ],
+            "total_deductions": 42
+          }
+        }
+      }
+    ]
+  }
+}

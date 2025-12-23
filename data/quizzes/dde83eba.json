@@ -1,0 +1,19 @@
+{
+  "id": "dde83eba",
+  "title": "poip",
+  "teacher_email": "andreas.falley@gmail.com",
+  "created_at": "2025-12-20T01:43:41.684410Z",
+  "questions": [
+    {
+      "type": "essay",
+      "text": "Please provide a history of the Haight Ashbury",
+      "requirements": [
+        "The Summer of Love began in the Haight Ashbury",
+        "Janis Joplin lived in the Haight Ashbury",
+        "Jimi Hendrix played a concert there but didn't live there.",
+        "The Grateful Dead played in the park."
+      ],
+      "max_points": 10
+    }
+  ]
+}

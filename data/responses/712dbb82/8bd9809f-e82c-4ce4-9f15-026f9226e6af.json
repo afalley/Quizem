@@ -1,0 +1,94 @@
+{
+  "id": "8bd9809f-e82c-4ce4-9f15-026f9226e6af",
+  "quiz_id": "712dbb82",
+  "student_name": "Andreas",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-13T01:37:17.143792Z",
+  "answers": [
+    "The Haight Ashbury is a great place. Hippies live there. The Summer of Love happened there. Jimi Hendrix lived there. Janis Joplin lived there."
+  ],
+  "result": {
+    "score": 4,
+    "total": 10,
+    "percent": 40.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 4,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Give me the history of the Haight Ashbury.",
+          "requirements": [
+            "The Summer of Love began in the Haight Ashbury.",
+            "Janis Joplin lived in the Haight Ashbury.",
+            "Jimi Hendrix was rumored to live there but in fact he didn't."
+          ],
+          "essaygrader": {
+            "grade": 45,
+            "reasons": [
+              "Factual error regarding Jimi Hendrix (stated as living there when he did not) severely undermines credibility",
+              "Lacks academic rigor: no contextualization, analysis, or evidence beyond basic assertions",
+              "Fails to distinguish between rumor and reality for Hendrix as required",
+              "Overly simplistic language and structure (e.g., 'Hippies live there') violates academic standards",
+              "Misses opportunity to demonstrate historical understanding beyond rote requirements"
+            ],
+            "coverage": [
+              {
+                "requirement": "The Summer of Love began in the Haight Ashbury.",
+                "addressed": true,
+                "evidence": "Essay states: 'The Summer of Love happened there.'"
+              },
+              {
+                "requirement": "Janis Joplin lived in the Haight Ashbury.",
+                "addressed": true,
+                "evidence": "Essay states: 'Janis Joplin lived there.'"
+              },
+              {
+                "requirement": "Jimi Hendrix was rumored to live there but in fact he didn't.",
+                "addressed": false,
+                "evidence": "Essay states: 'Jimi Hendrix lived there.' This directly contradicts the requirement."
+              }
+            ],
+            "backend": "ollama",
+            "model_used": "qwen3-vl:30b",
+            "raw_response": "{\"grade\": 45, \"reasons\": [\"Factual error regarding Jimi Hendrix (stated as living there when he did not) severely undermines credibility\", \"Lacks academic rigor: no contextualization, analysis, or evidence beyond basic assertions\", \"Fails to distinguish between rumor and reality for Hendrix as required\", \"Overly simplistic language and structure (e.g., 'Hippies live there') violates academic standards\", \"Misses opportunity to demonstrate historical understanding beyond rote requirements\"], \"coverage\": [{\"requirement\": \"The Summer of Love began in the Haight Ashbury.\", \"addressed\": true, \"evidence\": \"Essay states: 'The Summer of Love happened there.'\"}, {\"requirement\": \"Janis Joplin lived in the Haight Ashbury.\", \"addressed\": true, \"evidence\": \"Essay states: 'Janis Joplin lived there.'\"}, {\"requirement\": \"Jimi Hendrix was rumored to live there but in fact he didn't.\", \"addressed\": false, \"evidence\": \"Essay states: 'Jimi Hendrix lived there.' This directly contradicts the requirement.\"}], \"domain_analysis\": \"While the Haight-Ashbury was indeed the epicenter of the 1967 Summer of Love (a pivotal countercultural movement), the essay's factual errors reveal significant historical inaccuracy. Janis Joplin did frequent Haight-Ashbury but primarily resided in North Beach; her connection to the neighborhood was more performative than residential. Jimi Hendrix never lived in Haight-Ashbury—he stayed at the Fairmont Hotel during his 1967 performances. The essay's failure to distinguish rumor from reality (e.g., Hendrix's rumored presence) demonstrates a lack of critical engagement with primary sources. True academic analysis would contextualize these figures within the neighborhood's transient, communal nature, where artists often moved between spaces rather than establishing permanent residences.\", \"max_points\": 100, \"deductions\": [{\"reason\": \"Factual error: Incorrectly states Jimi Hendrix lived in Haight-Ashbury when he did not\", \"points\": 25, \"requirement\": \"Jimi Hendrix was rumored to live there but in fact he didn't.\", \"evidence\": \"Essay states: 'Jimi Hendrix lived there.'\", \"category\": \"factual_error\"}, {\"reason\": \"Failure to address requirement: Did not distinguish between rumor and reality for Hendrix\", \"points\": 15, \"requirement\": \"Jimi Hendrix was rumored to live there but in fact he didn't.\", \"evidence\": \"Essay presents Hendrix's residence as fact without acknowledging the rumor/reality distinction\", \"category\": \"missing_requirement\"}, {\"reason\": \"Clarity/style: Overly simplistic language and lack of academic structure\", \"points\": 10, \"requirement\": null, \"evidence\": \"Essay uses non-academic phrasing ('Hippies live there') and lacks any analysis or evidence\", \"category\": \"clarity/style\"}, {\"reason\": \"Partial coverage: Incorrectly addresses Janis Joplin's residence (she was not a permanent resident)\", \"points\": 5, \"requirement\": \"Janis Joplin lived in the Haight Ashbury.\", \"evidence\": \"While Joplin performed in Haight-Ashbury, she lived in North Beach; essay presents this as definitive residence\", \"category\": \"partial_coverage\"}], \"total_deductions\": 55}",
+            "semantic_similarity": null,
+            "domain_analysis": "While the Haight-Ashbury was indeed the epicenter of the 1967 Summer of Love (a pivotal countercultural movement), the essay's factual errors reveal significant historical inaccuracy. Janis Joplin did frequent Haight-Ashbury but primarily resided in North Beach; her connection to the neighborhood was more performative than residential. Jimi Hendrix never lived in Haight-Ashbury—he stayed at the Fairmont Hotel during his 1967 performances. The essay's failure to distinguish rumor from reality (e.g., Hendrix's rumored presence) demonstrates a lack of critical engagement with primary sources. True academic analysis would contextualize these figures within the neighborhood's transient, communal nature, where artists often moved between spaces rather than establishing permanent residences.",
+            "max_points": 100,
+            "deductions": [
+              {
+                "reason": "Factual error: Incorrectly states Jimi Hendrix lived in Haight-Ashbury when he did not",
+                "points": 25,
+                "requirement": "Jimi Hendrix was rumored to live there but in fact he didn't.",
+                "evidence": "Essay states: 'Jimi Hendrix lived there.'",
+                "category": "factual_error"
+              },
+              {
+                "reason": "Failure to address requirement: Did not distinguish between rumor and reality for Hendrix",
+                "points": 15,
+                "requirement": "Jimi Hendrix was rumored to live there but in fact he didn't.",
+                "evidence": "Essay presents Hendrix's residence as fact without acknowledging the rumor/reality distinction",
+                "category": "missing_requirement"
+              },
+              {
+                "reason": "Clarity/style: Overly simplistic language and lack of academic structure",
+                "points": 10,
+                "evidence": "Essay uses non-academic phrasing ('Hippies live there') and lacks any analysis or evidence",
+                "category": "clarity/style"
+              },
+              {
+                "reason": "Partial coverage: Incorrectly addresses Janis Joplin's residence (she was not a permanent resident)",
+                "points": 5,
+                "requirement": "Janis Joplin lived in the Haight Ashbury.",
+                "evidence": "While Joplin performed in Haight-Ashbury, she lived in North Beach; essay presents this as definitive residence",
+                "category": "partial_coverage"
+              }
+            ],
+            "total_deductions": 55
+          }
+        }
+      }
+    ]
+  }
+}

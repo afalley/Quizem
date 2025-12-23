@@ -1,0 +1,63 @@
+{
+  "id": "40d770a9-cdd7-43a6-9dc6-4dc72d1e6ff6",
+  "quiz_id": "9db83d51",
+  "student_name": "Andreas",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-20T01:34:27.559778Z",
+  "answers": [
+    "There's quite amount of history in the Haight Ashbury.\r\nJanis Joplin and Jimi Hendrix lived there.\r\nThe Summer of Love began there."
+  ],
+  "result": {
+    "score": 10,
+    "total": 10,
+    "percent": 100.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 10,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Give me a history of the Haight Ashbury",
+          "requirements": [
+            "The Summer of Love began in the Haight Ashbury",
+            "Janis Joplin lived there.",
+            "Jimi Hendrix only played concerts there."
+          ],
+          "essaygrader": {
+            "grade": 100,
+            "reasons": [
+              "Local model unavailable or call failed; applied heuristic grading.",
+              "Reason: HTTPError: HTTP Error 404: Not Found"
+            ],
+            "coverage": [
+              {
+                "requirement": "The Summer of Love began in the Haight Ashbury",
+                "addressed": true,
+                "evidence": "...there's quite amount of history in the haight ashbury."
+              },
+              {
+                "requirement": "Janis Joplin lived there.",
+                "addressed": true,
+                "evidence": "...janis joplin and jimi hendrix lived there."
+              },
+              {
+                "requirement": "Jimi Hendrix only played concerts there.",
+                "addressed": true,
+                "evidence": "...janis joplin and jimi hendrix lived there."
+              }
+            ],
+            "backend": "fallback",
+            "model_used": null,
+            "raw_response": null,
+            "semantic_similarity": null,
+            "domain_analysis": null,
+            "max_points": 100,
+            "deductions": [],
+            "total_deductions": 0
+          }
+        }
+      }
+    ]
+  }
+}

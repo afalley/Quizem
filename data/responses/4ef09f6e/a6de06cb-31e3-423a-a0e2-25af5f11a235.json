@@ -1,0 +1,79 @@
+{
+  "id": "a6de06cb-31e3-423a-a0e2-25af5f11a235",
+  "quiz_id": "4ef09f6e",
+  "student_name": "Andreas",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-11T01:17:54.282462Z",
+  "answers": [
+    "The Hippie movement began in the Haight Ashbury.\r\nJanis Joplin lived there.\r\nJimi Hendrix lived there."
+  ],
+  "result": {
+    "score": 6,
+    "total": 10,
+    "percent": 60.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 6,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Give me the history of the Haight Ashbury neighborhood",
+          "requirements": [
+            "The Summer of Love began there.",
+            "Jimi Hendrix was rumored to live there but in fact only played concerts there.",
+            "Janis Joplin lived there."
+          ],
+          "essaygrader": {
+            "grade": 60,
+            "reasons": [
+              "Essay fails to address key requirement that The Summer of Love began in a specific location.",
+              "Inaccurate statement about Jimi Hendrix's residency, despite correct mention of his concerts."
+            ],
+            "coverage": [
+              {
+                "requirement": "The Summer of Love began there.",
+                "addressed": false
+              },
+              {
+                "requirement": "Jimi Hendrix was rumored to live there but in fact only played concerts there.",
+                "addressed": true,
+                "evidence": "Incorrectly stated that Jimi Hendrix lived there."
+              },
+              {
+                "requirement": "Janis Joplin lived there.",
+                "addressed": true
+              }
+            ],
+            "backend": "ollama",
+            "model_used": "llama3.1:8b",
+            "raw_response": "{\"grade\": 60, \"reasons\": [\"Essay fails to address key requirement that The Summer of Love began in a specific location.\", \"Inaccurate statement about Jimi Hendrix's residency, despite correct mention of his concerts.\"], \"coverage\": [{\"requirement\": \"The Summer of Love began there.\", \"addressed\": false}, {\"requirement\": \"Jimi Hendrix was rumored to live there but in fact only played concerts there.\", \"addressed\": true, \"evidence\": \"Incorrectly stated that Jimi Hendrix lived there.\"}, {\"requirement\": \"Janis Joplin lived there.\", \"addressed\": true}], \"domain_analysis\": \"The Summer of Love is often associated with San Francisco's Haight-Ashbury neighborhood. However, the essay fails to accurately capture this connection. While Janis Joplin did live in San Francisco, it was not exclusively in Haight-Ashbury. Jimi Hendrix's actual residency remains unclear, but his concerts in the area are well-documented.\", \"max_points\": 100, \"deductions\": [{\"reason\": \"Missing requirement: The Summer of Love began there.\", \"points\": 20, \"requirement\": null, \"evidence\": null, \"category\": \"missing_requirement\"}, {\"reason\": \"Partial coverage: Inaccurate statement about Jimi Hendrix's residency.\", \"points\": 10, \"requirement\": \"Jimi Hendrix was rumored to live there but in fact only played concerts there.\", \"evidence\": \"Incorrectly stated that Jimi Hendrix lived there.\", \"category\": \"factual_error\"}], \"total_deductions\": 30}",
+            "semantic_similarity": 0.5396264579685537,
+            "domain_analysis": "The Summer of Love is often associated with San Francisco's Haight-Ashbury neighborhood. However, the essay fails to accurately capture this connection. While Janis Joplin did live in San Francisco, it was not exclusively in Haight-Ashbury. Jimi Hendrix's actual residency remains unclear, but his concerts in the area are well-documented.",
+            "max_points": 100,
+            "deductions": [
+              {
+                "reason": "Missing requirement: The Summer of Love began there.",
+                "points": 20,
+                "category": "missing_requirement"
+              },
+              {
+                "reason": "Partial coverage: Inaccurate statement about Jimi Hendrix's residency.",
+                "points": 10,
+                "requirement": "Jimi Hendrix was rumored to live there but in fact only played concerts there.",
+                "evidence": "Incorrectly stated that Jimi Hendrix lived there.",
+                "category": "factual_error"
+              },
+              {
+                "reason": "Reconciliation: deductions (30) did not equal max_points-grade (40); keeping grade and recording actual difference.",
+                "points": 10,
+                "category": "reconciliation"
+              }
+            ],
+            "total_deductions": 40
+          }
+        }
+      }
+    ]
+  }
+}

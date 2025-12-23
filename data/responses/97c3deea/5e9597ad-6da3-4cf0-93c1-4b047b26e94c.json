@@ -1,0 +1,63 @@
+{
+  "id": "5e9597ad-6da3-4cf0-93c1-4b047b26e94c",
+  "quiz_id": "97c3deea",
+  "student_name": "Andreas",
+  "student_email": "andreas.falley@gmail.com",
+  "submitted_at": "2025-12-13T01:25:44.925038Z",
+  "answers": [
+    "The Haight Ashbury is a fun place. Janis Joplin lived there.  Jimi Hendrix lived there. The Summer of Love Happened there."
+  ],
+  "result": {
+    "score": 10,
+    "total": 10,
+    "percent": 100.0,
+    "per_question": [
+      {
+        "type": "essay",
+        "awarded": 10,
+        "max_points": 10,
+        "correct": null,
+        "details": {
+          "prompt": "Please provide a history of the Haight Ashbury",
+          "requirements": [
+            "The Summer of Love began in the Haight Ashbury.",
+            "Jimi Hendrix was rumored to live there but he only played concerts there.",
+            "Janis Joplin lived there."
+          ],
+          "essaygrader": {
+            "grade": 100,
+            "reasons": [
+              "Local model unavailable or call failed; applied heuristic grading.",
+              "Reason: TimeoutError: timed out"
+            ],
+            "coverage": [
+              {
+                "requirement": "The Summer of Love began in the Haight Ashbury.",
+                "addressed": true,
+                "evidence": "...the haight ashbury is a fun place."
+              },
+              {
+                "requirement": "Jimi Hendrix was rumored to live there but he only played concerts there.",
+                "addressed": true,
+                "evidence": "...a fun place. janis joplin lived there.  jimi hendrix lived there."
+              },
+              {
+                "requirement": "Janis Joplin lived there.",
+                "addressed": true,
+                "evidence": "...the haight ashbury is a fun place. janis joplin lived there."
+              }
+            ],
+            "backend": "fallback",
+            "model_used": null,
+            "raw_response": null,
+            "semantic_similarity": null,
+            "domain_analysis": null,
+            "max_points": 100,
+            "deductions": [],
+            "total_deductions": 0
+          }
+        }
+      }
+    ]
+  }
+}
