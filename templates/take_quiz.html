@@ -46,9 +46,19 @@
       {% endfor %}
 
       <footer>
-        <button type="submit">Submit</button>
+        <button type="submit" id="submit-button">Submit</button>
         <a role="button" class="secondary" href="{{ url_for('index') }}">Cancel</a>
       </footer>
     </form>
   </article>
+
+  <script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const btn = document.getElementById('submit-button');
+      btn.innerText = 'Grading...';
+      btn.style.setProperty('background-color', 'blue', 'important');
+      btn.style.setProperty('border-color', 'blue', 'important');
+      btn.style.setProperty('color', 'white', 'important');
+    });
+  </script>
 {% endblock %}

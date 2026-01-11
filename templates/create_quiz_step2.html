@@ -2,7 +2,7 @@
 {% block content %}
   <article>
     <h2>Quiz Details</h2>
-    <p>For each question, choose the type. For Multiple Choice, provide options and the correct option number. For Essay, provide grading requirements (one per line) and max points.</p>
+    <p>For each question, choose the type. For Multiple Choice, provide options and the correct option number. For Essay, provide grading requirements (separated by TWO newlines) and max points.</p>
     <form method="post">
       <input type="hidden" name="wizard_step" value="2">
       <input type="hidden" name="title" value="{{ title }}">
@@ -41,8 +41,8 @@
           <div class="essay-fields">
             <h4>Essay Fields</h4>
             <label>
-              Requirements (one per line)
-              <textarea name="q_requirements_{{ i }}" rows="4" placeholder="Requirement 1\nRequirement 2\nRequirement 3"></textarea>
+              Requirements (separated by two \n)
+              <textarea name="q_requirements_{{ i }}" rows="4" placeholder="Requirement 1&#10;&#10;Requirement 2&#10;&#10;Requirement 3"></textarea>
             </label>
             <label>
               Max Points (default 10)

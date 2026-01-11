@@ -1,5 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
+  <style>
+    .text-blue { color: blue !important; }
+    .text-green { color: green !important; }
+    .text-red { color: red !important; }
+    .text-white { color: white !important; }
+    .text-white :not(.muted) { color: white !important; }
+    .muted { color: #888 !important; }
+    .text-white .muted { color: #ccc !important; }
+    .essay-box {
+        color: blue !important;
+        white-space: pre-wrap;
+        margin: 1rem 0;
+        padding: 0.5rem;
+        border-left: 3px solid blue;
+    }
+    .grading-feedback {
+        color: white !important;
+        background-color: #333; /* Dark background to make white text visible if necessary, but the prompt says "in white" */
+        padding: 0.5rem;
+        border-radius: 4px;
+    }
+  </style>
   <article>
     <h2>Thank you{% if student_name %}, {{ student_name }}{% endif %}!</h2>
     <p>Your submission has been received.</p>
@@ -10,36 +32,59 @@
       <ol>
         {% for pq in result.per_question %}
           <li>
+            {% set q_text = pq.details.text or pq.details.prompt %}
+            <p class="text-blue"><strong>{{ q_text }}</strong></p>
+
             <strong>{{ pq.type|upper }}</strong> — Awarded {{ pq.awarded }}/{{ pq.max_points }}
+            
             {% if pq.type == 'essay' %}
               {% set eg = pq.details.essaygrader %}
-              {% if eg and eg.deductions and eg.total_deductions and eg.max_points %}
-                <div>
-                  <strong>Deductions:</strong> {{ eg.total_deductions }} of {{ eg.max_points }} point(s) lost
-                </div>
-                <ul>
-                  {# Show the concrete reasons for deductions directly to the student #}
-                  {% for d in eg.deductions %}
-                    <li>
-                      -{{ d.points }}: {{ d.reason }}{% if d.category %} <span class="muted">[{{ d.category }}]</span>{% endif %}
-                    </li>
-                  {% endfor %}
-                </ul>
-              {% elif eg and (eg.total_deductions == 0 or eg.total_deductions == '0') %}
-                <div class="muted">No points were deducted for this essay.</div>
-              {% endif %}
+              {% set essay_text = result.answers[loop.index0] if result.answers else "" %}
+              <div class="essay-box">
+                {{ essay_text }}
+              </div>
+
+              <div class="text-white">
+                {% if eg and eg.deductions and eg.total_deductions and eg.max_points %}
+                  <div>
+                    <strong>Deductions:</strong> {{ eg.total_deductions }} of {{ eg.max_points }} point(s) lost
+                  </div>
+                  <ul>
+                    {# Show the concrete reasons for deductions directly to the student #}
+                    {% for d in eg.deductions %}
+                      <li>
+                        -{{ d.points }}: {{ d.reason }}{% if d.category %} <span class="muted">[{{ d.category }}]</span>{% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% elif eg and (eg.total_deductions == 0 or eg.total_deductions == '0') %}
+                  <div class="muted">No points were deducted for this essay.</div>
+                {% endif %}
+              </div>
             {% endif %}
             {% if pq.type == 'mc' %}
               <div class="muted">
                 {% if pq.details.selected_index is not none %}
-                  Selected option index: {{ pq.details.selected_index }}
+                  Selected option index: {{ pq.details.selected_index + 1 }}
                 {% else %}
                   No answer selected.
                 {% endif %}
               </div>
+              <ul>
+                {% for opt in pq.details.options %}
+                  {% set is_selected = (pq.details.selected_index == loop.index0) %}
+                  {% set is_correct = pq.correct %}
+                  <li class="{% if is_selected %}{% if is_correct %}text-green{% else %}text-red{% endif %}{% else %}text-white{% endif %}">
+                    {{ opt }}
+                    {% if is_selected %}
+                      {% if is_correct %}(correct){% else %}(incorrect){% endif %}
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
             {% else %}
               {% if eg %}
-                <details>
+                <details class="text-white">
                   <summary>Essay feedback (graded via {{ eg.backend }})</summary>
                   <p><strong>Reasons:</strong></p>
                   <ul>

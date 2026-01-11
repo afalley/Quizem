@@ -369,8 +369,8 @@ def teacher_create():
             if qtype == 'essay':
                 reqs_raw = (request.form.get(f'q_requirements_{i}') or '').strip()
                 max_pts_raw = (request.form.get(f'q_max_points_{i}') or '').strip()
-                # Requirements: one per line
-                requirements = [r.strip() for r in reqs_raw.replace('\r', '\n').split('\n') if r.strip()]
+                # Requirements: separated by two \n characters
+                requirements = [r.strip() for r in reqs_raw.replace('\r', '').split('\n\n') if r.strip()]
                 if not requirements:
                     flash('Essay questions must include at least one requirement.', 'error')
                     return redirect(url_for('teacher_create'))
