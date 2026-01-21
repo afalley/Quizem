@@ -108,5 +108,3 @@ If SMTP is not configured, the app will print the email content to the console a
 - Responses: `data/responses/<quiz_id>/<submission_id>.json`
 - Users: `data/users.json`
 
-## Notes
-- This is a minimal educational sample; for production, consider proper authentication, a database, CSRF protection, and rate limiting.
