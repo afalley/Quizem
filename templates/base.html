@@ -8,51 +8,95 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <style>
     :root {
-      /* QuizMaker palette */
-      --qm-1: #ccd5ae; /* olive light */
-      --qm-2: #e9edc9; /* pale green */
-      --qm-3: #fefae0; /* cream */
-      --qm-4: #faedcd; /* light sand */
-      --qm-5: #d4a373; /* warm brown (accent) */
-      --qm-5-pressed: #b88352; /* darker warm brown (pressed) */
-      /* Pico overrides */
-      --pico-primary: var(--qm-5);
-      --pico-primary-inverse: var(--qm-3);
+      /* Modern Professional Palette */
+      --primary: #0690dd;
+      --primary-hover: #035d8d;
+      --primary-focus: rgba(4, 114, 172, 0.125);
+      --primary-inverse: #fff;
+      
+      --pico-primary: var(--primary);
+      --pico-primary-hover: var(--primary-hover);
+      --pico-primary-focus: var(--primary-focus);
+      --pico-primary-inverse: var(--primary-inverse);
+
+      --pico-border-radius: 0.75rem;
+      --pico-font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
-    html, body { background: var(--qm-3); }
-    body { color: var(--qm-5); }
-    main { max-width: 880px; margin: 2rem auto; }
-    header { border-bottom: 4px solid var(--qm-5); margin-bottom: 1.5rem; }
-    header h1 { color: var(--qm-5); margin-bottom: .25rem; }
-    nav ul { display: flex; gap: 1rem; list-style: none; padding: 0; }
-    nav a { color: var(--qm-5); }
-    nav a:hover { color: var(--qm-1); }
-    a { color: var(--qm-5); }
-    a:hover { color: var(--qm-1); }
+
+    body {
+      background-color: #f8fafc;
+      transition: background-color 0.3s ease;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    header {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: var(--pico-border-radius);
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      margin-bottom: 2rem;
+      border: none;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary) 0%, #9333ea 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    nav ul {
+      margin-top: 0.5rem;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 0.5rem;
+    }
+
+    article {
+      border: none;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      background: white;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
     button, [role="button"], input[type="submit"] {
-      background-color: var(--qm-5) !important;
-      border-color: var(--qm-5) !important;
-      color: var(--qm-3) !important;
+      font-weight: 600;
+      transition: all 0.2s ease;
     }
-    button:active, [role="button"]:active, input[type="submit"]:active {
-      background-color: var(--qm-5-pressed) !important;
-      border-color: var(--qm-5-pressed) !important;
+
+    button:hover, [role="button"]:hover, input[type="submit"]:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     }
-    .secondary {
-      background: transparent !important;
-      border: 2px solid var(--qm-1) !important;
-      color: var(--qm-5) !important;
+
+    .flash {
+      border: none;
+      font-weight: 500;
+      box-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.05);
     }
-    .secondary:active {
-      background-color: var(--qm-1) !important;
-      border-color: var(--qm-1) !important;
-      color: var(--qm-5) !important;
+
+    .flash.error {
+      background-color: #fef2f2;
+      color: #991b1b;
     }
-    fieldset legend { color: var(--qm-5); }
-    .flash { padding: .75rem 1rem; border-radius: .5rem; margin-bottom: 1rem; }
-    .flash.error { background: var(--qm-4); color: var(--qm-5); }
-    .flash.success { background: var(--qm-2); color: var(--qm-5); }
-    code { white-space: pre-wrap; }
+
+    .flash.success {
+      background-color: #f0fdf4;
+      color: #166534;
+    }
+
+    code {
+      background: #f1f5f9;
+      color: #334155;
+      padding: 0.2rem 0.4rem;
+      border-radius: 0.25rem;
+    }
   </style>
 </head>
 <body>

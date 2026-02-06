@@ -1,41 +1,84 @@
 {% extends 'base.html' %}
 {% block content %}
   <style>
-    .text-blue { color: blue !important; }
-    .text-green { color: green !important; }
-    .text-red { color: red !important; }
-    .text-white { color: white !important; }
-    .text-white :not(.muted) { color: white !important; }
-    .muted { color: #888 !important; }
-    .text-white .muted { color: #ccc !important; }
+    .text-primary { color: var(--primary) !important; }
+    .text-success { color: #166534 !important; }
+    .text-error { color: #991b1b !important; }
+    .muted { color: #64748b !important; }
+    
     .essay-box {
-        color: blue !important;
-        white-space: pre-wrap;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 1rem;
         margin: 1rem 0;
-        padding: 0.5rem;
-        border-left: 3px solid blue;
+        white-space: pre-wrap;
+        color: #1e293b !important;
     }
-    .grading-feedback {
-        color: white !important;
-        background-color: #333; /* Dark background to make white text visible if necessary, but the prompt says "in white" */
-        padding: 0.5rem;
-        border-radius: 4px;
+    
+    .feedback-container {
+        border-left: 4px solid var(--primary);
+        padding-left: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .breakdown-item {
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .breakdown-item:last-child {
+        border-bottom: none;
+    }
+
+    .score-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: var(--primary);
+        color: white;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 0.875rem;
     }
   </style>
   <article>
-    <h2>Thank you{% if student_name %}, {{ student_name }}{% endif %}!</h2>
-    <p>Your submission has been received.</p>
-    <p>Score: <strong>{{ result.score }}/{{ result.total }}</strong> ({{ result.percent }}%)</p>
+    <hgroup>
+      <h2>Thank you{% if student_name %}, {{ student_name }}{% endif %}!</h2>
+      <p>Your submission has been received and graded.</p>
+    </hgroup>
+    
+    <div style="background: var(--primary-focus); padding: 1.5rem; border-radius: 0.75rem; text-align: center; margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 0;">Overall Score</h3>
+        <div style="font-size: 3rem; font-weight: 800; color: var(--primary);">
+            {{ result.score }}<span style="font-size: 1.5rem; color: #64748b; font-weight: 400;">/{{ result.total }}</span>
+        </div>
+        <div class="score-badge">{{ result.percent }}%</div>
+    </div>
 
     {% if result.per_question %}
-      <h3>Breakdown</h3>
-      <ol>
+      <h3>Question Breakdown</h3>
+      <div>
         {% for pq in result.per_question %}
-          <li>
+          <div class="breakdown-item">
             {% set q_text = pq.details.text or pq.details.prompt %}
-            <p class="text-blue"><strong>{{ q_text }}</strong></p>
+            <p style="font-size: 1.125rem; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">
+                {{ loop.index }}. {{ q_text }}
+            </p>
 
-            <strong>{{ pq.type|upper }}</strong> — Awarded {{ pq.awarded }}/{{ pq.max_points }}
+            <div style="margin-bottom: 1rem;">
+                {% if pq.awarded == pq.max_points %}
+                  {% set badge_bg = '#166534' %}
+                {% elif pq.awarded == 0 %}
+                  {% set badge_bg = '#991b1b' %}
+                {% else %}
+                  {% set badge_bg = 'var(--primary)' %}
+                {% endif %}
+                <span class="score-badge" style="background-color: {{ badge_bg }};">
+                    {{ pq.awarded }}/{{ pq.max_points }} Points
+                </span>
+                <small class="muted" style="margin-left: 0.5rem; text-transform: uppercase; font-weight: 700;">{{ pq.type }}</small>
+            </div>
             
             {% if pq.type == 'essay' %}
               {% set eg = pq.details.essaygrader %}
@@ -44,86 +87,90 @@
                 {{ essay_text }}
               </div>
 
-              <div class="text-white">
-                {% if eg and eg.deductions and eg.total_deductions and eg.max_points %}
-                  <div>
-                    <strong>Deductions:</strong> {{ eg.total_deductions }} of {{ eg.max_points }} point(s) lost
-                  </div>
-                  <ul>
-                    {# Show the concrete reasons for deductions directly to the student #}
-                    {% for d in eg.deductions %}
-                      <li>
-                        -{{ d.points }}: {{ d.reason }}{% if d.category %} <span class="muted">[{{ d.category }}]</span>{% endif %}
-                      </li>
-                    {% endfor %}
-                  </ul>
-                {% elif eg and (eg.total_deductions == 0 or eg.total_deductions == '0') %}
-                  <div class="muted">No points were deducted for this essay.</div>
-                {% endif %}
-              </div>
+              {% if eg %}
+                <div class="feedback-container">
+                  <h5 style="margin-bottom: 0.5rem;">Feedback</h5>
+                  {% if eg.deductions %}
+                    <ul style="list-style-type: none; padding-left: 0;">
+                      {% for d in eg.deductions %}
+                        <li style="margin-bottom: 0.5rem; display: flex; align-items: flex-start;">
+                          <span class="text-error" style="font-weight: 700; margin-right: 0.5rem; min-width: 2.5rem;">-{{ d.points }}</span>
+                          <span>
+                            {{ d.reason }}
+                            {% if d.category %}<small class="muted">[{{ d.category }}]</small>{% endif %}
+                          </span>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% elif eg.total_deductions == 0 or eg.total_deductions == '0' %}
+                    <p class="text-success">Perfect response! No points were deducted.</p>
+                  {% endif %}
+                  
+                  <details>
+                    <summary style="font-size: 0.875rem;">View detailed LLM analysis</summary>
+                    <div style="font-size: 0.875rem; padding-top: 1rem;">
+                        <p><strong>Detailed Reasons:</strong></p>
+                        <ul>
+                          {% for r in eg.reasons %}
+                            <li>{{ r }}</li>
+                          {% endfor %}
+                        </ul>
+                        {% if eg.coverage %}
+                          <p><strong>Requirement coverage:</strong></p>
+                          <ul>
+                            {% for c in eg.coverage %}
+                              <li>
+                                <em>{{ c.requirement }}</em> —
+                                {% if c.addressed %}addressed{% else %}not addressed{% endif %}
+                                {% if c.evidence %} (evidence: {{ c.evidence }}){% endif %}
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                    </div>
+                  </details>
+                </div>
+              {% endif %}
             {% endif %}
+
             {% if pq.type == 'mc' %}
-              <div class="muted">
-                {% if pq.details.selected_index is not none %}
-                  Selected option index: {{ pq.details.selected_index + 1 }}
-                {% else %}
-                  No answer selected.
-                {% endif %}
-              </div>
-              <ul>
+              <ul style="list-style-type: none; padding-left: 0;">
                 {% for opt in pq.details.options %}
                   {% set is_selected = (pq.details.selected_index == loop.index0) %}
-                  {% set is_correct = pq.correct %}
-                  <li class="{% if is_selected %}{% if is_correct %}text-green{% else %}text-red{% endif %}{% else %}text-white{% endif %}">
-                    {{ opt }}
-                    {% if is_selected %}
-                      {% if is_correct %}(correct){% else %}(incorrect){% endif %}
-                    {% endif %}
+                  {% set is_correct = pq.correct if is_selected else false %}
+                  {# Note: if not selected, we don't necessarily know if it was correct from this data alone without more logic, 
+                     but pq.correct is only true if selected_index was correct. #}
+                  {% if is_selected and pq.correct %}
+                    {% set item_border = '#bbf7d0' %}
+                    {% set item_bg = '#f0fdf4' %}
+                  {% elif is_selected and not pq.correct %}
+                    {% set item_border = '#fecaca' %}
+                    {% set item_bg = '#fef2f2' %}
+                  {% else %}
+                    {% set item_border = '#f1f5f9' %}
+                    {% set item_bg = 'transparent' %}
+                  {% endif %}
+                  <li style="padding: 0.5rem; border-radius: 0.4rem; margin-bottom: 0.25rem; border: 1px solid {{ item_border }}; background: {{ item_bg }};">
+                    <span style="display: flex; align-items: center;">
+                        <input type="radio" disabled {% if is_selected %}checked{% endif %} style="margin-bottom: 0; margin-right: 0.75rem;">
+                        <span style="flex: 1; {% if is_selected %}font-weight: 600;{% endif %}">
+                            {{ opt }}
+                            {% if is_selected %}
+                              {% if pq.correct %}<span class="text-success">(Correct)</span>{% else %}<span class="text-error">(Incorrect)</span>{% endif %}
+                            {% endif %}
+                        </span>
+                    </span>
                   </li>
                 {% endfor %}
               </ul>
-            {% else %}
-              {% if eg %}
-                <details class="text-white">
-                  <summary>Essay feedback (graded via {{ eg.backend }})</summary>
-                  <p><strong>Reasons:</strong></p>
-                  <ul>
-                    {% for r in eg.reasons %}
-                      <li>{{ r }}</li>
-                    {% endfor %}
-                  </ul>
-                  {% if eg.deductions %}
-                    <p><strong>Deductions (max {{ eg.max_points }}; total deducted {{ eg.total_deductions }}):</strong></p>
-                    <ul>
-                      {% for d in eg.deductions %}
-                        <li>
-                          -{{ d.points }}: {{ d.reason }}
-                          {% if d.category %}<span class="muted">[{{ d.category }}]</span>{% endif %}
-                          {% if d.requirement %}<div class="muted">Requirement: {{ d.requirement }}</div>{% endif %}
-                          {% if d.evidence %}<div class="muted">Evidence: {{ d.evidence }}</div>{% endif %}
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
-                  {% if eg.coverage %}
-                    <p><strong>Requirement coverage:</strong></p>
-                    <ul>
-                      {% for c in eg.coverage %}
-                        <li>
-                          <em>{{ c.requirement }}</em> —
-                          {% if c.addressed %}addressed{% else %}not addressed{% endif %}
-                          {% if c.evidence %} (evidence: {{ c.evidence }}){% endif %}
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
-                </details>
-              {% endif %}
             {% endif %}
-          </li>
+          </div>
         {% endfor %}
-      </ol>
+      </div>
     {% endif %}
-    <p><a href="{{ url_for('index') }}">Back to Home</a></p>
+    
+    <div style="margin-top: 3rem; text-align: center;">
+        <a role="button" href="{{ url_for('index') }}">Back to Quiz List</a>
+    </div>
   </article>
 {% endblock %}

@@ -1,24 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
-  <article>
-    <h2>Login</h2>
+  <article style="max-width: 480px; margin: 4rem auto;">
+    <hgroup style="text-align: center; margin-bottom: 2rem;">
+        <h2>Welcome Back</h2>
+        <p>Log in to access your quizzes and dashboard.</p>
+    </hgroup>
+    
     <form method="post">
       <label>
         Username
-        <input type="text" name="username" required autofocus>
+        <input type="text" name="username" required autofocus placeholder="Enter your username">
       </label>
       <label>
         Password
-        <input type="password" name="password" required>
+        <input type="password" name="password" required placeholder="••••••••">
       </label>
-      <footer>
-        <button type="submit">Login</button>
-        <a role="button" class="secondary" href="{{ url_for('index') }}">Cancel</a>
-      </footer>
+      
+      <button type="submit" style="width: 100%; margin-top: 1rem;">Login</button>
+      <a role="button" class="outline" href="{{ url_for('index') }}" style="width: 100%;">Cancel</a>
     </form>
-    <p>
-      Default accounts:
-      <code>teacher/teacher</code> (teacher) and <code>student/student</code> (student).
-    </p>
+    
+    <div style="margin-top: 2rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem; font-size: 0.875rem; text-align: center;">
+      <p class="muted" style="margin-bottom: 0.5rem;">Default accounts for testing:</p>
+      <code>teacher/teacher</code> &nbsp; <code>student/student</code>
+    </div>
   </article>
 {% endblock %}

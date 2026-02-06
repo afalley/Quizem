@@ -1,47 +1,67 @@
 {% extends 'base.html' %}
 {% block content %}
   <article>
-    <h2>Manage Students</h2>
+    <hgroup>
+      <h2>User Management</h2>
+      <p>Add, remove, or update student accounts.</p>
+    </hgroup>
 
     <section>
-      <h3>Add Student</h3>
-      <form method="post">
+      <h3>Add New Student</h3>
+      <form method="post" class="grid">
         <input type="hidden" name="action" value="add">
         <label>
           Username
           <input type="text" name="username" placeholder="e.g., alice" required>
         </label>
         <label>
-          Password (optional; default is "student")
-          <input type="text" name="password" placeholder="student">
+          Password
+          <input type="text" name="password" placeholder="default: student">
         </label>
-        <button type="submit">Add</button>
+        <div style="display: flex; align-items: flex-end; padding-bottom: 1rem;">
+            <button type="submit" style="width: 100%;">Add Student</button>
+        </div>
       </form>
     </section>
 
     <section>
       <h3>Existing Students</h3>
       {% if students %}
-        <ul>
-          {% for s in students %}
-            <li>
-              <strong>{{ s }}</strong>
-              <form method="post" style="display:inline">
-                <input type="hidden" name="action" value="delete">
-                <input type="hidden" name="username" value="{{ s }}">
-                <button type="submit" class="secondary">Delete</button>
-              </form>
-              <form method="post" style="display:inline; margin-left: 1rem;">
-                <input type="hidden" name="action" value="reset">
-                <input type="hidden" name="username" value="{{ s }}">
-                <input type="text" name="password" placeholder="new password" required>
-                <button type="submit">Set Password</button>
-              </form>
-            </li>
-          {% endfor %}
-        </ul>
+        <div class="overflow-auto">
+          <table class="striped">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in students %}
+                <tr>
+                  <td style="vertical-align: middle;"><strong>{{ s }}</strong></td>
+                  <td style="text-align: right;">
+                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                        <form method="post" style="margin: 0; display: flex; gap: 0.25rem;">
+                          <input type="hidden" name="action" value="reset">
+                          <input type="hidden" name="username" value="{{ s }}">
+                          <input type="text" name="password" placeholder="New pass" required style="margin: 0; padding: 0.25rem 0.5rem; height: auto;">
+                          <button type="submit" style="padding: 0.25rem 0.75rem; height: auto;">Reset</button>
+                        </form>
+                        
+                        <form method="post" style="margin: 0;" onsubmit="return confirm('Delete user {{ s }}?');">
+                          <input type="hidden" name="action" value="delete">
+                          <input type="hidden" name="username" value="{{ s }}">
+                          <button type="submit" class="outline contrast" style="padding: 0.25rem 0.75rem; height: auto;">Delete</button>
+                        </form>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       {% else %}
-        <p>No students yet.</p>
+        <p>No students enrolled yet.</p>
       {% endif %}
     </section>
 

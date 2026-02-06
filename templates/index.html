@@ -1,27 +1,48 @@
 {% extends 'base.html' %}
 {% block content %}
   <article>
-    <h2>Available Quizzes</h2>
+    <header style="border: none; background: none; padding: 0; margin-bottom: 1.5rem;">
+      <h2 style="margin: 0;">Available Quizzes</h2>
+    </header>
     {% if quizzes %}
-      <ul>
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
         {% for q in quizzes %}
-          <li>
-            <a href="{{ url_for('take_quiz', quiz_id=q.id) }}">{{ q.title }}</a>
-            <small style="color: #d4a373">Created: {{ q.created_at }}</small>
-          </li>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border: 1px solid var(--primary); border-radius: var(--pico-border-radius); background: #1a1a1a; color: white; transition: all 0.2s ease;" class="quiz-item">
+            <h4 style="margin: 0; font-size: 1.125rem;">
+              <a href="{{ url_for('take_quiz', quiz_id=q.id) }}" style="text-decoration: none; color: var(--primary);">{{ q.title }}</a>
+            </h4>
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+              <small style="color: #cbd5e1; white-space: nowrap;">Created: {{ q.created_at }}</small>
+              <a href="{{ url_for('take_quiz', quiz_id=q.id) }}" role="button" class="outline contrast" style="margin: 0; padding: 0.25rem 1rem; font-size: 0.875rem; border-color: var(--primary); color: var(--primary);">Take Quiz</a>
+            </div>
+          </div>
         {% endfor %}
-      </ul>
+      </div>
     {% else %}
-      <p>No quizzes yet.</p>
+      <p style="text-align: center; color: #64748b; margin: 2rem 0;">No quizzes available right now. Check back later!</p>
     {% endif %}
   </article>
 
+  <style>
+    .quiz-item:hover {
+        background-color: #000000 !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 8px 15px -3px rgb(0 0 0 / 0.3);
+        transform: translateX(4px);
+    }
+  </style>
+
   <article>
-    <h3>Teacher Links</h3>
+    <h3>Teacher Dashboard</h3>
     {% if current_user and current_user.role == 'teacher' %}
-      <p><a href="{{ url_for('teacher_create') }}">Create a new quiz</a> or <a href="{{ url_for('manage_users') }}">manage students</a>.</p>
+      <p>Manage your classroom resources effectively.</p>
+      <div class="grid">
+          <a role="button" href="{{ url_for('teacher_create') }}">Create New Quiz</a>
+          <a role="button" class="outline" href="{{ url_for('manage_users') }}">Manage Students</a>
+      </div>
     {% else %}
-      <p><a href="{{ url_for('login') }}">Log in</a> as a teacher to create quizzes and manage students.</p>
+      <p>Log in as a teacher to create quizzes and manage students.</p>
+      <a role="button" href="{{ url_for('login') }}">Teacher Login</a>
     {% endif %}
   </article>
 {% endblock %}

@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
   <article>
-    <h2>Quiz Details</h2>
-    <p>For each question, choose the type. For Multiple Choice, provide options and the correct option number. For Essay, provide grading requirements (separated by TWO newlines) and max points.</p>
+    <hgroup>
+      <h2>Question Details</h2>
+      <p>Configure each question for your quiz "{{ title }}".</p>
+    </hgroup>
+    
     <form method="post">
       <input type="hidden" name="wizard_step" value="2">
       <input type="hidden" name="title" value="{{ title }}">
@@ -10,51 +13,60 @@
       <input type="hidden" name="num_questions" value="{{ num_questions }}">
 
       {% for i in idx_list %}
-        <fieldset>
-          <legend>Question {{ i + 1 }}</legend>
-          <label>
-            Type
-            <select name="q_type_{{ i }}">
-              <option value="mc">Multiple Choice</option>
-              <option value="essay">Essay</option>
-            </select>
-          </label>
+        <fieldset style="margin-bottom: 3rem; border: 1px solid #e2e8f0; padding: 2rem; border-radius: 1rem; background: #fff;">
+          <legend style="font-weight: 800; color: var(--primary); font-size: 1.25rem; padding: 0 1rem;">Question {{ i + 1 }}</legend>
+          
+          <div class="grid">
+              <label>
+                Question Type
+                <select name="q_type_{{ i }}">
+                  <option value="mc">Multiple Choice</option>
+                  <option value="essay">Essay (LLM Graded)</option>
+                </select>
+              </label>
+              <div class="mc-fields">
+                  <label>
+                    Points
+                    <input type="number" name="q_points_{{ i }}" min="1" value="1" placeholder="1">
+                  </label>
+              </div>
+              <div class="essay-fields" style="display:none;">
+                  <label>
+                    Max Points
+                    <input type="number" name="q_max_points_{{ i }}" min="1" value="10" placeholder="10">
+                  </label>
+              </div>
+          </div>
+
           <label>
             Question Text
-            <textarea name="q_text_{{ i }}" rows="3" required placeholder="Type the question here..."></textarea>
+            <textarea name="q_text_{{ i }}" rows="2" required placeholder="What is the capital of France?"></textarea>
           </label>
+
           <div class="mc-fields">
-            <h4>Multiple Choice Fields</h4>
             <label>
-              Options (one per line, or separated by commas/semicolons)
-              <textarea name="q_options_{{ i }}" rows="4" placeholder="Option A\nOption B\nOption C"></textarea>
+              Options (one per line)
+              <textarea name="q_options_{{ i }}" rows="4" placeholder="Paris&#10;London&#10;Berlin&#10;Madrid"></textarea>
             </label>
             <label>
-              Correct Option Number (1-based)
-              <input type="number" name="q_correct_{{ i }}" min="1" placeholder="e.g., 2">
-            </label>
-            <label>
-              Points for this question (default 1)
-              <input type="number" name="q_points_{{ i }}" min="1" placeholder="1">
+              Correct Option Number (1, 2, 3...)
+              <input type="number" name="q_correct_{{ i }}" min="1" placeholder="e.g., 1">
             </label>
           </div>
-          <div class="essay-fields">
-            <h4>Essay Fields</h4>
+
+          <div class="essay-fields" style="display:none; background: #f8fafc; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid var(--primary);">
             <label>
-              Requirements (separated by two \n)
-              <textarea name="q_requirements_{{ i }}" rows="4" placeholder="Requirement 1&#10;&#10;Requirement 2&#10;&#10;Requirement 3"></textarea>
+              Grading Rubric / Requirements (separate requirements with TWO newlines)
+              <textarea name="q_requirements_{{ i }}" rows="5" placeholder="Must mention the industrial revolution.&#10;&#10;Must explain the impact on society."></textarea>
             </label>
-            <label>
-              Max Points (default 10)
-              <input type="number" name="q_max_points_{{ i }}" min="1" placeholder="10">
-            </label>
+            <small class="muted">The AI will use this rubric to grade the student's response.</small>
           </div>
         </fieldset>
       {% endfor %}
 
-      <footer>
-        <button type="submit">Create Quiz</button>
-        <a role="button" class="secondary" href="{{ url_for('teacher_create') }}">Back</a>
+      <footer style="display: flex; gap: 1rem; background: none; border: none; padding: 0; margin-top: 2rem;">
+        <button type="submit" style="flex: 1;">Create Quiz Now</button>
+        <a role="button" class="outline" href="{{ url_for('teacher_create') }}" style="flex: 0 0 auto;">Back to Step 1</a>
       </footer>
     </form>
   </article>
@@ -63,18 +75,14 @@
       function updateFieldset(fs) {
         var typeSel = fs.querySelector('select[name^="q_type_"]');
         if (!typeSel) return;
-        var mc = fs.querySelector('.mc-fields');
-        var essay = fs.querySelector('.essay-fields');
-        if (!mc || !essay) return;
+        var mcs = fs.querySelectorAll('.mc-fields');
+        var essays = fs.querySelectorAll('.essay-fields');
+        if (mcs.length === 0 || essays.length === 0) return;
 
         var setDisplay = function() {
-          if (typeSel.value === 'essay') {
-            mc.style.display = 'none';
-            essay.style.display = '';
-          } else {
-            mc.style.display = '';
-            essay.style.display = 'none';
-          }
+          var isEssay = typeSel.value === 'essay';
+          mcs.forEach(function(el) { el.style.display = isEssay ? 'none' : ''; });
+          essays.forEach(function(el) { el.style.display = isEssay ? '' : 'none'; });
         };
 
         typeSel.addEventListener('change', setDisplay);
