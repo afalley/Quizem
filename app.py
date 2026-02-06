@@ -158,6 +158,8 @@ def list_quizzes():
                     'id': q.get('id'),
                     'title': q.get('title', q.get('id')),
                     'created_at': q.get('created_at'),
+                    'available_from': q.get('available_from'),
+                    'available_until': q.get('available_until'),
                 })
         except Exception:
             continue
@@ -176,6 +178,20 @@ def save_response(quiz_id: str, response: dict):
 @app.route('/')
 def index():
     quizzes = list_quizzes()
+    # If not a teacher, filter out quizzes that are not yet available or have expired
+    is_teacher = g.user and g.user.get('role') == 'teacher'
+    if not is_teacher:
+        now_date = datetime.now(UTC).date().isoformat()
+        filtered = []
+        for q in quizzes:
+            start = q.get('available_from')
+            end = q.get('available_until')
+            if start and now_date < start:
+                continue
+            if end and now_date > end:
+                continue
+            filtered.append(q)
+        quizzes = filtered
     return render_template('index.html', quizzes=quizzes)
 
 
@@ -323,6 +339,8 @@ def teacher_create():
         title = request.form.get('title', '').strip()
         teacher_email = request.form.get('teacher_email', '').strip() or DEFAULT_TEACHER_EMAIL
         num_str = request.form.get('num_questions', '').strip()
+        start_date = request.form.get('start_date', '').strip()
+        end_date = request.form.get('end_date', '').strip()
         try:
             num_questions = int(num_str)
         except ValueError:
@@ -342,6 +360,8 @@ def teacher_create():
             teacher_email=teacher_email,
             num_questions=num_questions,
             idx_list=idx_list,
+            start_date=start_date,
+            end_date=end_date,
         )
 
     # Wizard step 2 -> build questions and create quiz
@@ -349,6 +369,8 @@ def teacher_create():
         title = request.form.get('title', '').strip()
         teacher_email = request.form.get('teacher_email', '').strip() or DEFAULT_TEACHER_EMAIL
         num_str = request.form.get('num_questions', '').strip()
+        start_date = request.form.get('start_date', '').strip()
+        end_date = request.form.get('end_date', '').strip()
         try:
             num_questions = int(num_str)
         except ValueError:
@@ -435,6 +457,8 @@ def teacher_create():
             'title': title,
             'teacher_email': teacher_email,
             'created_at': datetime.now(UTC).replace(tzinfo=None).isoformat() + 'Z',
+            'available_from': start_date if start_date else None,
+            'available_until': end_date if end_date else None,
             'questions': questions,
         }
         save_quiz(quiz)
@@ -451,6 +475,16 @@ def take_quiz(quiz_id):
     quiz = load_quiz(quiz_id)
     if not quiz:
         abort(404)
+
+    # Check date availability
+    now_date = datetime.now(UTC).date().isoformat()
+    if quiz.get('available_from') and now_date < quiz['available_from']:
+        flash(f"This quiz is not available until {quiz['available_from']}.", 'error')
+        return redirect(url_for('index'))
+    if quiz.get('available_until') and now_date > quiz['available_until']:
+        flash(f"This quiz expired on {quiz['available_until']}.", 'error')
+        return redirect(url_for('index'))
+
     return render_template('take_quiz.html', quiz=quiz)
 
 

@@ -12,7 +12,15 @@
               <a href="{{ url_for('take_quiz', quiz_id=q.id) }}" style="text-decoration: none; color: var(--primary);">{{ q.title }}</a>
             </h4>
             <div style="display: flex; align-items: center; gap: 1.5rem;">
-              <small style="color: #cbd5e1; white-space: nowrap;">Created: {{ q.created_at }}</small>
+              <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                <small style="color: #cbd5e1; white-space: nowrap;">Created: {{ q.created_at[:10] }}</small>
+                {% if q.available_from or q.available_until %}
+                  <small style="color: #94a3b8; font-size: 0.75rem;">
+                    {% if q.available_from %}From: {{ q.available_from }}{% endif %}
+                    {% if q.available_until %} Until: {{ q.available_until }}{% endif %}
+                  </small>
+                {% endif %}
+              </div>
               <a href="{{ url_for('take_quiz', quiz_id=q.id) }}" role="button" class="outline contrast" style="margin: 0; padding: 0.25rem 1rem; font-size: 0.875rem; border-color: var(--primary); color: var(--primary);">Take Quiz</a>
             </div>
           </div>
