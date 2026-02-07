@@ -3,29 +3,40 @@
 This document explains how the `essaygrader` module evaluates an essay against a list of requirements using a local LLM (via Ollama) with a deterministic heuristic fallback.
 
 #### What it is
-- A single function interface: `grade_essay(essay: str, requirements: list[str], *, model=None, base_url=None, temperature=0.2, timeout=30.0) -> dict`
+- A single function interface: `grade_essay(essay: str, requirements: list[str], *, model=None, base_url=None, temperature=0.2, timeout=30.0, max_points=100) -> dict`
 - Local-first: prefers a locally hosted model through Ollama.
+- Advanced AI Analysis: Includes semantic similarity scoring and domain-expert domain analysis.
+- Detailed Deductions: Provides a transparent breakdown of points lost.
 - Resilient: if the LLM is unavailable or returns malformed output, it falls back to a transparent heuristic.
 
 #### Inputs and Outputs
 - Inputs
   - `essay`: string — the student’s essay text.
   - `requirements`: list of strings — each describes a fact/topic the essay should address.
+  - `max_points`: int (default 100) — maximum possible score.
   - Optional tuning via keyword args: `model`, `base_url`, `temperature`, `timeout`.
 
 - Output (always a dict with a stable shape)
-  - `grade`: int in 0–100
-  - `reasons`: list[str] — short explanations for the grade or fallback reasons
+  - `grade`: int in 0–max_points
+  - `reasons`: list[str] — short explanations for the grade
   - `coverage`: list[object]
     - `requirement`: str
     - `addressed`: bool
     - `evidence`: str (short snippet or note)
+  - `semantic_similarity`: float (0.0 to 1.0) — mathematical relevance score
+  - `domain_analysis`: str | null — subject matter expert feedback
+  - `max_points`: int
+  - `deductions`: list[object]
+    - `reason`: str
+    - `points`: int
+    - `category`: str
+  - `total_deductions`: int
   - `backend`: "ollama" | "fallback"
   - `model_used`: str | null
-  - `raw_response`: str | null — raw model JSON or raw text if non-JSON
+  - `raw_response`: str | null — raw model JSON or raw text
 
 #### Environment configuration
-- `ESSAYGRADER_MODEL` (default: `"llama3.1:8b"`)
+- `ESSAYGRADER_MODEL` (default: `"qwen2.5:14b-instruct"`)
 - `ESSAYGRADER_OLLAMA_BASE_URL` (default: `"http://localhost:11434"`)
 
 You can also override these via function parameters `model` and `base_url`.
@@ -38,11 +49,12 @@ You can also override these via function parameters `model` and `base_url`.
 flowchart TD
     A[Start grade_essay] --> B[Validate inputs]
     B --> C[Resolve config\nmodel/base_url/env]
-    C --> D[Build strict-JSON prompt]
+    C --> EM[1. Semantic Embedding\n_compute_semantic_score]
+    EM --> D[2. Build advanced prompt\ninject similarity score]
     D --> E{Call Ollama /api/generate}
     E -->|Success| F[Parse response as JSON]
     E -->|Network/API error| M[Heuristic fallback]
-    F -->|Valid JSON| G[Clamp grade\nextract reasons/coverage]
+    F -->|Valid JSON| G[Clamp grade\nextract deductions/analysis]
     F -->|Not JSON| H[Compute heuristic coverage\nkeep raw_response]
     G --> I{Coverage present?}
     I -->|Yes| J[Return GradeResult\nbackend=ollama]
@@ -54,10 +66,11 @@ flowchart TD
 ```
 
 Key design points
-- Single network call: one POST to `base_url/api/generate` with `stream=False`.
-- Strict JSON request: the prompt instructs the model to output only a JSON object.
+- Semantic Embedding: Pre-evaluates relevance using vector similarity before the main generation.
+- Domain Analysis: Instructs the model to act as a subject matter expert.
+- Detailed Deductions: Maps specific failures to point losses for transparency.
+- Single network call for generation: one POST to `base_url/api/generate` with `stream=False`.
 - Robust parsing: attempts `json.loads`; if that fails, extracts the first `{...}` block; otherwise falls back.
-- Transparent results: `backend` and `raw_response` show what happened.
 
 ---
 
@@ -66,13 +79,15 @@ Key design points
    - Ensures `essay` is a non-empty string and `requirements` is a list of strings. Otherwise raises `ValueError`.
 
 2. Configuration
-   - Picks `model` and `base_url` from parameters or environment variables. Default model: `llama3.1:8b`. Default base URL: `http://localhost:11434`.
+   - Picks `model` and `base_url` from parameters or environment variables. Default model: `qwen2.5:14b-instruct`. Default base URL: `http://localhost:11434`.
 
 3. Prompt construction
-   - Builds a concise, rubric-based prompt that demands strict JSON with keys: `grade`, `reasons`, `coverage`, `suggestions`.
+   - Builds a sophisticated prompt that includes the student's essay, requirements, and an optional semantic similarity score.
+   - Instructs the model to act as a subject matter expert and provide detailed deductions in JSON format.
 
 4. LLM attempt (preferred path)
-   - Calls Ollama `POST /api/generate` with payload `{ model, prompt, stream:false, options:{temperature} }`.
+   - Step 1 (Optional): Calls Ollama `POST /api/embeddings` to compute vector similarity.
+   - Step 2: Calls Ollama `POST /api/generate` with payload `{ model, prompt, stream:false, options:{temperature} }`.
    - Expects response JSON containing a `response` field (text). Attempts to parse that text as JSON.
 
 5. JSON parsing
@@ -156,10 +171,10 @@ Example successful result (shape)
 ### Local Model Setup (Ollama)
 1. Install Ollama: https://ollama.com
 2. Pull a suitable model, for example:
-   - `ollama pull llama3.1:8b`
+   - `ollama pull qwen2.5:14b-instruct`
 3. Ensure the server is running (default at `http://localhost:11434`).
 4. Optionally set environment variables:
-   - `export ESSAYGRADER_MODEL="llama3.1:8b"`
+   - `export ESSAYGRADER_MODEL="qwen2.5:14b-instruct"`
    - `export ESSAYGRADER_OLLAMA_BASE_URL="http://localhost:11434"`
 
 ---
@@ -179,4 +194,4 @@ Example successful result (shape)
 ---
 
 ### Version
-- Document generated on 2025-12-03.
+- Document updated on 2026-02-06.
