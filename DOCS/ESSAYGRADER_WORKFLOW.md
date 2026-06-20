@@ -36,8 +36,10 @@ This document explains how the `essaygrader` module evaluates an essay against a
   - `raw_response`: str | null — raw model JSON or raw text
 
 #### Environment configuration
-- `ESSAYGRADER_MODEL` (default: `"qwen2.5:14b-instruct"`)
+- `ESSAYGRADER_MODEL` (default: `"llama3.1:8b"`)
 - `ESSAYGRADER_OLLAMA_BASE_URL` (default: `"http://localhost:11434"`)
+- `OPENAI_API_KEY` (Optional, if set uses OpenAI instead of Ollama)
+- `OPENAI_MODEL` (default: `"gpt-4o-mini"`)
 
 You can also override these via function parameters `model` and `base_url`.
 
@@ -79,7 +81,8 @@ Key design points
    - Ensures `essay` is a non-empty string and `requirements` is a list of strings. Otherwise raises `ValueError`.
 
 2. Configuration
-   - Picks `model` and `base_url` from parameters or environment variables. Default model: `qwen2.5:14b-instruct`. Default base URL: `http://localhost:11434`.
+   - Picks `model` and `base_url` from parameters or environment variables. Default model: `llama3.1:8b`. Default base URL: `http://localhost:11434`.
+   - Also supports OpenAI if `OPENAI_API_KEY` is provided.
 
 3. Prompt construction
    - Builds a sophisticated prompt that includes the student's essay, requirements, and an optional semantic similarity score.
@@ -171,10 +174,10 @@ Example successful result (shape)
 ### Local Model Setup (Ollama)
 1. Install Ollama: https://ollama.com
 2. Pull a suitable model, for example:
-   - `ollama pull qwen2.5:14b-instruct`
+   - `ollama pull llama3.1:8b`
 3. Ensure the server is running (default at `http://localhost:11434`).
 4. Optionally set environment variables:
-   - `export ESSAYGRADER_MODEL="qwen2.5:14b-instruct"`
+   - `export ESSAYGRADER_MODEL="llama3.1:8b"`
    - `export ESSAYGRADER_OLLAMA_BASE_URL="http://localhost:11434"`
 
 ---

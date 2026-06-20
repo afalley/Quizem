@@ -13,7 +13,7 @@ A modern Python/Flask application that empowers teachers to create and deploy on
   - **Local-First AI**: Powered by Ollama for privacy and speed, with a robust heuristic fallback.
 - **Automated MCQ Grading**: Instant results for multiple-choice questions.
 - **Email Integration**: Automatically sends student results to the teacher (SMTP) with console fallback for development.
-- **File-Based Storage**: No database required; quizzes, responses, and users are stored as JSON on disk.
+- **PostgreSQL Storage**: Secure and scalable storage for quizzes, responses, and users using a PostgreSQL database.
 
 ## Requirements
 - Python 3.10+
@@ -51,10 +51,22 @@ A modern Python/Flask application that empowers teachers to create and deploy on
    # Edit .env with your favorite editor
    ```
 
-5. **AI Model Setup**:
+5. **Database Setup**:
+   (Optional) Ensure you have a PostgreSQL server running and create a database named `quizem`.
+   Set the `DATABASE_URL` in your `.env` file if using PostgreSQL:
+   ```bash
+   DATABASE_URL=postgresql://username:password@localhost:5432/quizem
+   ```
+   If `DATABASE_URL` is not provided, the application will use a local SQLite database (`instance/quizem.db`) by default.
+   Run the migration script to initialize the database and migrate any existing JSON data:
+   ```bash
+   python migrate_to_db.py
+   ```
+
+6. **AI Model Setup**:
    Ensure Ollama is running and pull the default model:
    ```bash
-   ollama pull qwen2.5:14b-instruct
+   ollama pull llama3.1:8b
    ```
 
 ## Running the Application
@@ -87,14 +99,19 @@ Default accounts (pre-configured):
 | `SMTP_PORT` | SMTP server port | `587` |
 | `SMTP_USER` | SMTP username | |
 | `SMTP_PASS` | SMTP password | |
-| `ESSAYGRADER_MODEL` | Ollama model name | `qwen2.5:14b-instruct` |
+| `ESSAYGRADER_MODEL` | Ollama model name | `llama3.1:8b` |
 | `ESSAYGRADER_OLLAMA_BASE_URL` | Ollama API URL | `http://localhost:11434` |
+| `OPENAI_API_KEY` | OpenAI API Key (Optional) | |
+| `OPENAI_MODEL` | OpenAI model name | `gpt-4o-mini` |
+| `DATABASE_URL` | Database connection string (Postgres, etc.) | `sqlite:///quizem.db` |
 
 ## Documentation
 - [EssayGrader Workflow](DOCS/ESSAYGRADER_WORKFLOW.md): Detailed technical explanation of the AI grading logic.
 
 ## Data Structure
-- **Quizzes**: `data/quizzes/`
-- **Submissions**: `data/responses/`
-- **Users**: `data/users.json`
+Data is stored in a PostgreSQL database with the following tables:
+- **users**: User accounts and roles.
+- **courses**: Course definitions and student enrollments.
+- **quizzes**: Quiz definitions and questions (stored as JSON/JSONB).
+- **responses**: Student submissions and grading results (stored as JSON/JSONB).
 

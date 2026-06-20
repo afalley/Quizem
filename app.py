@@ -1,9 +1,17 @@
 import os
 import json
 import uuid
-from datetime import datetime, UTC
-from pathlib import Path
+from datetime import datetime
+try:
+    from datetime import UTC
+except ImportError:
+    import datetime as dt
+    UTC = dt.timezone.utc
+from typing import Any, Dict, List, Optional, Union
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, session, g
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from dotenv import load_dotenv
 
 # Local helpers
@@ -12,21 +20,61 @@ from mailer import send_email
 
 load_dotenv()
 
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / 'data'
-QUIZZES_DIR = DATA_DIR / 'quizzes'
-RESPONSES_DIR = DATA_DIR / 'responses'
-
-for d in (DATA_DIR, QUIZZES_DIR, RESPONSES_DIR):
-    d.mkdir(parents=True, exist_ok=True)
-
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'dev-secret-key')
 
-DEFAULT_TEACHER_EMAIL = os.environ.get('TEACHER_EMAIL', '')
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///quizem.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-# Users storage (very simple JSON file with hashed passwords)
-USERS_FILE = DATA_DIR / 'users.json'
+# Database Models
+class User(db.Model):
+    __tablename__ = 'users'
+    username = db.Column(db.String(64), primary_key=True)
+    role = db.Column(db.String(20), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+
+    def to_dict(self):
+        return {
+            'role': self.role,
+            'password_hash': self.password_hash
+        }
+
+course_students = db.Table('course_students',
+    db.Column('course_name', db.String(128), db.ForeignKey('courses.name', ondelete='CASCADE'), primary_key=True),
+    db.Column('student_username', db.String(64), db.ForeignKey('users.username', ondelete='CASCADE'), primary_key=True)
+)
+
+class Course(db.Model):
+    __tablename__ = 'courses'
+    name = db.Column(db.String(128), primary_key=True)
+    teacher_username = db.Column(db.String(64), db.ForeignKey('users.username', ondelete='SET NULL'))
+    students = db.relationship('User', secondary=course_students, 
+                               backref=db.backref('courses_enrolled', lazy='dynamic'))
+
+class Quiz(db.Model):
+    __tablename__ = 'quizzes'
+    id = db.Column(db.String(8), primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    teacher_email = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC).replace(tzinfo=None))
+    available_from = db.Column(db.String(10))  # Storing as string to match current logic
+    available_until = db.Column(db.String(10)) # Storing as string to match current logic
+    questions = db.Column(JSON().with_variant(JSONB, "postgresql"))
+
+class Response(db.Model):
+    __tablename__ = 'responses'
+    id = db.Column(db.String(36), primary_key=True)
+    quiz_id = db.Column(db.String(8), db.ForeignKey('quizzes.id', ondelete='CASCADE'), nullable=False)
+    student_name = db.Column(db.String(255))
+    student_email = db.Column(db.String(255))
+    submitted_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC).replace(tzinfo=None))
+    answers = db.Column(JSON().with_variant(JSONB, "postgresql"))
+    result = db.Column(JSON().with_variant(JSONB, "postgresql"))
+
+
+DEFAULT_TEACHER_EMAIL = os.environ.get('TEACHER_EMAIL', '')
 
 try:
     from werkzeug.security import generate_password_hash, check_password_hash
@@ -41,81 +89,89 @@ except Exception:
         return h == hashlib.sha256(pw.encode('utf-8')).hexdigest()
 
 
-def _load_users() -> dict:
-    if not USERS_FILE.exists():
-        return {}
-    try:
-        with USERS_FILE.open('r', encoding='utf-8') as fh:
-            data = json.load(fh)
-            if isinstance(data, dict):
-                return data
-    except Exception:
-        pass
-    return {}
-
-
-def _save_users(users: dict) -> None:
-    USERS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    tmp = USERS_FILE.with_suffix('.json.tmp')
-    with tmp.open('w', encoding='utf-8') as fh:
-        json.dump(users, fh, indent=2, ensure_ascii=False)
-    tmp.replace(USERS_FILE)
-
-
 def ensure_default_users():
-    users = _load_users()
-    changed = False
-    # Create default teacher and student if missing
-    if 'teacher' not in users:
-        users['teacher'] = {
-            'role': 'teacher',
-            'password_hash': generate_password_hash('teacher'),
-        }
-        changed = True
-    if 'student' not in users:
-        users['student'] = {
-            'role': 'student',
-            'password_hash': generate_password_hash('student'),
-        }
-        changed = True
-    if changed:
-        _save_users(users)
+    # Create default admin, teacher and student if missing
+    for username, role in [('admin', 'admin'), ('teacher', 'teacher'), ('student', 'student')]:
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            new_user = User(
+                username=username,
+                role=role,
+                password_hash=generate_password_hash(username)
+            )
+            db.session.add(new_user)
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
 
 
-ensure_default_users()
+def init_db(app_instance):
+    with app_instance.app_context():
+        try:
+            db.create_all()
+            ensure_default_users()
+        except Exception as e:
+            print(f"Could not connect to database or create tables: {e}")
+
+
+init_db(app)
 
 
 def get_user(username: str):
-    return _load_users().get(username)
+    if not username:
+        return None
+    # Case-insensitive lookup
+    user = User.query.filter(User.username.ilike(username)).first()
+    if user:
+        return user.to_dict()
+    return None
 
 
-def set_user(username: str, role: str, password: str | None = None):
-    users = _load_users()
-    if role not in ('teacher', 'student'):
+def set_user(username: str, role: str, password: Optional[str] = None):
+    if role not in ('admin', 'teacher', 'student'):
         raise ValueError('Invalid role')
-    rec = users.get(username, {'role': role})
-    rec['role'] = role
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        user = User(username=username, role=role)
+        db.session.add(user)
+    
+    user.role = role
     if password is not None:
-        rec['password_hash'] = generate_password_hash(password)
-    users[username] = rec
-    _save_users(users)
+        user.password_hash = generate_password_hash(password)
+    elif not user.password_hash:
+        user.password_hash = generate_password_hash(role)
+        
+    db.session.commit()
 
 
 def delete_user(username: str):
-    users = _load_users()
-    if username in users:
-        # protect built-ins
-        if username in ('teacher', 'student'):
-            raise ValueError('Cannot delete default user')
-        del users[username]
-        _save_users(users)
+    if username in ('admin', 'teacher', 'student'):
+        raise ValueError('Cannot delete default user')
+    user = User.query.filter_by(username=username).first()
+    if user:
+        db.session.delete(user)
+        db.session.commit()
 
 
-def list_users(role: str | None = None) -> dict:
-    users = _load_users()
+def _load_courses() -> dict:
+    courses = Course.query.all()
+    result = {}
+    for c in courses:
+        result[c.name] = {
+            'students': [s.username for s in c.students],
+            'teacher': c.teacher_username
+        }
+    return result
+
+
+def list_users(role: Optional[str] = None) -> dict:
     if role is None:
-        return users
-    return {u: rec for u, rec in users.items() if rec.get('role') == role}
+        users = User.query.all()
+    else:
+        users = User.query.filter_by(role=role).all()
+    return {u.username: u.to_dict() for u in users}
 
 
 @app.before_request
@@ -134,45 +190,79 @@ def inject_user():
 
 
 def load_quiz(quiz_id: str):
-    f = QUIZZES_DIR / f'{quiz_id}.json'
-    if not f.exists():
+    quiz = db.session.get(Quiz, quiz_id)
+    if not quiz:
         return None
-    with f.open('r', encoding='utf-8') as fh:
-        return json.load(fh)
+    return {
+        'id': quiz.id,
+        'title': quiz.title,
+        'teacher_email': quiz.teacher_email,
+        'created_at': quiz.created_at.isoformat() + 'Z' if quiz.created_at else '',
+        'available_from': quiz.available_from,
+        'available_until': quiz.available_until,
+        'questions': quiz.questions
+    }
 
 
-def save_quiz(quiz: dict):
-    quiz_id = quiz['id']
-    f = QUIZZES_DIR / f'{quiz_id}.json'
-    with f.open('w', encoding='utf-8') as fh:
-        json.dump(quiz, fh, indent=2, ensure_ascii=False)
+def save_quiz(quiz_dict: dict):
+    quiz_id = quiz_dict['id']
+    quiz = db.session.get(Quiz, quiz_id)
+    if not quiz:
+        quiz = Quiz(id=quiz_id)
+        db.session.add(quiz)
+    
+    quiz.title = quiz_dict.get('title')
+    quiz.teacher_email = quiz_dict.get('teacher_email')
+    if quiz_dict.get('created_at'):
+        try:
+            # handle ISO format with Z
+            dt_str = quiz_dict['created_at'].replace('Z', '')
+            quiz.created_at = datetime.fromisoformat(dt_str)
+        except Exception:
+            pass
+    quiz.available_from = quiz_dict.get('available_from')
+    quiz.available_until = quiz_dict.get('available_until')
+    quiz.questions = quiz_dict.get('questions')
+    
+    db.session.commit()
 
 
 def list_quizzes():
-    quizzes = []
-    for f in sorted(QUIZZES_DIR.glob('*.json')):
+    quizzes = Quiz.query.order_by(Quiz.created_at.desc()).all()
+    return [{
+        'id': q.id,
+        'title': q.title,
+        'created_at': q.created_at.isoformat() + 'Z' if q.created_at else '',
+        'available_from': q.available_from,
+        'available_until': q.available_until,
+    } for q in quizzes]
+
+
+def delete_quiz_data(quiz_id: str):
+    quiz = db.session.get(Quiz, quiz_id)
+    if quiz:
+        db.session.delete(quiz)
+        db.session.commit()
+
+
+def save_response(quiz_id: str, response_dict: dict):
+    rid = response_dict.get('id') or str(uuid.uuid4())
+    resp = Response(
+        id=rid,
+        quiz_id=quiz_id,
+        student_name=response_dict.get('student_name'),
+        student_email=response_dict.get('student_email'),
+        answers=response_dict.get('answers'),
+        result=response_dict.get('result')
+    )
+    if response_dict.get('submitted_at'):
         try:
-            with f.open('r', encoding='utf-8') as fh:
-                q = json.load(fh)
-                quizzes.append({
-                    'id': q.get('id'),
-                    'title': q.get('title', q.get('id')),
-                    'created_at': q.get('created_at'),
-                    'available_from': q.get('available_from'),
-                    'available_until': q.get('available_until'),
-                })
+            dt_str = response_dict['submitted_at'].replace('Z', '')
+            resp.submitted_at = datetime.fromisoformat(dt_str)
         except Exception:
-            continue
-    quizzes.sort(key=lambda x: x.get('created_at') or '', reverse=True)
-    return quizzes
-
-
-def save_response(quiz_id: str, response: dict):
-    q_dir = RESPONSES_DIR / quiz_id
-    q_dir.mkdir(parents=True, exist_ok=True)
-    rid = response.get('id') or str(uuid.uuid4())
-    with (q_dir / f'{rid}.json').open('w', encoding='utf-8') as fh:
-        json.dump(response, fh, indent=2, ensure_ascii=False)
+            pass
+    db.session.add(resp)
+    db.session.commit()
 
 
 @app.route('/')
@@ -213,13 +303,16 @@ def login():
     if request.method == 'POST':
         username = (request.form.get('username') or '').strip()
         password = request.form.get('password') or ''
-        u = get_user(username)
-        if not u or not check_password_hash(u.get('password_hash', ''), password):
+        # Case-insensitive lookup
+        user = User.query.filter(User.username.ilike(username)).first()
+        if not user or not check_password_hash(user.password_hash, password):
             flash('Invalid username or password.', 'error')
             return render_template('login.html')
-        session['username'] = username
-        flash(f'Logged in as {username}.', 'success')
-        nxt = request.args.get('next') or url_for('index')
+        actual_username = user.username
+        session['username'] = actual_username
+        
+        flash(f'Logged in as {actual_username}.', 'success')
+        nxt = request.form.get('next') or request.args.get('next') or url_for('index')
         return redirect(nxt)
     return render_template('login.html')
 
@@ -228,6 +321,16 @@ def login():
 def logout():
     session.pop('username', None)
     flash('You have been logged out.', 'success')
+    return redirect(url_for('index'))
+
+
+@app.route('/quiz/delete/<quiz_id>', methods=['POST'])
+def delete_quiz(quiz_id):
+    rr = roles_required('teacher')
+    if rr:
+        return rr
+    delete_quiz_data(quiz_id)
+    flash(f'Quiz {quiz_id} has been deleted.', 'success')
     return redirect(url_for('index'))
 
 
@@ -242,42 +345,141 @@ def _valid_username(username: str) -> bool:
 
 @app.route('/manage/users', methods=['GET', 'POST'])
 def manage_users():
-    rr = roles_required('teacher')
+    rr = roles_required('admin', 'teacher')
     if rr:
         return rr
+    
+    current_role = g.user['role']
+    
     if request.method == 'POST':
         action = request.form.get('action')
         username = (request.form.get('username') or '').strip()
         password = request.form.get('password')
         try:
             if action == 'add':
+                role = request.form.get('role', 'student')
+                if current_role != 'admin' and role != 'student':
+                    raise ValueError('Only admins can create non-student users.')
+                
                 if not _valid_username(username):
                     raise ValueError('Invalid username. Use letters, numbers, dash or underscore (max 64).')
-                users = _load_users()
-                if username in users:
+                if User.query.filter_by(username=username).first():
                     raise ValueError('Username already exists.')
-                set_user(username, 'student', password or 'student')
-                flash(f'Added student {username}.', 'success')
+                set_user(username, role, password or role)
+                flash(f'Added {role} {username}.', 'success')
             elif action == 'delete':
                 delete_user(username)
                 flash(f'Deleted user {username}.', 'success')
             elif action == 'reset':
                 if not _valid_username(username):
                     raise ValueError('Invalid username.')
-                users = _load_users()
-                if username not in users:
+                user = User.query.filter_by(username=username).first()
+                if not user:
                     raise ValueError('User not found.')
                 # Keep existing role
-                role = users[username].get('role', 'student')
-                set_user(username, role, password or 'student')
+                role = user.role
+                if current_role != 'admin' and role != 'student':
+                    raise ValueError('Teachers can only reset student passwords.')
+                set_user(username, role, password or role)
                 flash(f'Password reset for {username}.', 'success')
             else:
                 flash('Unknown action.', 'error')
         except Exception as e:
             flash(str(e), 'error')
 
-    students = sorted(list_users('student').keys())
-    return render_template('manage_users.html', students=students)
+    if current_role == 'admin':
+        # Admin sees everyone except themselves (optional)
+        users_to_show = list_users()
+        # sort by role then username
+        sorted_users = sorted(users_to_show.items(), key=lambda x: (x[1].get('role'), x[0]))
+        return render_template('manage_users.html', users=sorted_users, is_admin=True)
+    else:
+        # Teacher only sees students
+        students = sorted(list_users('student').keys())
+        return render_template('manage_users.html', students=students, is_admin=False)
+
+
+@app.route('/manage/courses', methods=['GET', 'POST'])
+def manage_courses():
+    rr = roles_required('admin')
+    if rr:
+        return rr
+    
+    courses = _load_courses()
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        course_name = (request.form.get('course_name') or '').strip()
+        
+        try:
+            if action == 'create':
+                if not course_name:
+                    raise ValueError('Course name is required.')
+                if Course.query.filter_by(name=course_name).first():
+                    raise ValueError('Course already exists.')
+                
+                course = Course(name=course_name)
+                db.session.add(course)
+                db.session.commit()
+                flash(f'Course "{course_name}" created.', 'success')
+            
+            elif action == 'delete':
+                course = Course.query.filter_by(name=course_name).first()
+                if course:
+                    db.session.delete(course)
+                    db.session.commit()
+                    flash(f'Course "{course_name}" deleted.', 'success')
+                else:
+                    raise ValueError('Course not found.')
+            
+            elif action == 'assign_teacher':
+                teacher_username = request.form.get('teacher_username')
+                course = Course.query.filter_by(name=course_name).first()
+                if not course:
+                    raise ValueError('Course not found.')
+                
+                course.teacher_username = teacher_username
+                db.session.commit()
+                flash(f'Teacher {teacher_username} assigned to {course_name}.', 'success')
+
+            elif action == 'assign':
+                student_username = request.form.get('student_username')
+                course = Course.query.filter_by(name=course_name).first()
+                if not course:
+                    raise ValueError('Course not found.')
+                if not student_username:
+                    raise ValueError('Student username is required.')
+                
+                student = User.query.filter_by(username=student_username).first()
+                if not student:
+                    raise ValueError('Student not found.')
+
+                if student not in course.students:
+                    course.students.append(student)
+                    db.session.commit()
+                    flash(f'Student {student_username} assigned to {course_name}.', 'success')
+                else:
+                    flash(f'Student {student_username} is already in {course_name}.', 'info')
+            
+            elif action == 'unassign':
+                student_username = request.form.get('student_username')
+                course = Course.query.filter_by(name=course_name).first()
+                if not course:
+                    raise ValueError('Course not found.')
+                
+                student = User.query.filter_by(username=student_username).first()
+                if student and student in course.students:
+                    course.students.remove(student)
+                    db.session.commit()
+                    flash(f'Student {student_username} removed from {course_name}.', 'success')
+
+        except Exception as e:
+            db.session.rollback()
+            flash(str(e), 'error')
+            
+    all_students = sorted(list_users('student').keys())
+    all_teachers = sorted(list_users('teacher').keys())
+    return render_template('manage_courses.html', courses=courses, all_students=all_students, all_teachers=all_teachers)
 
 
 @app.route('/teacher/create', methods=['GET', 'POST'])
@@ -569,5 +771,5 @@ def submit_quiz(quiz_id):
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', '5001'))
+    port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=True)

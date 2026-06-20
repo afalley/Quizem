@@ -22,6 +22,8 @@ Why these design choices?
 Environment variables:
   - ESSAYGRADER_MODEL: The model name to use with Ollama (default: "llama3.1:8b")
   - ESSAYGRADER_OLLAMA_BASE_URL: Base URL for Ollama (default: "http://localhost:11434")
+  - OPENAI_API_KEY: If set, use OpenAI instead of Ollama.
+  - OPENAI_MODEL: OpenAI model to use (default: "gpt-4o-mini")
 
 No external dependencies are required; this module uses the Python standard
 library (urllib) to avoid adding requirements to the project.
@@ -33,12 +35,12 @@ import json
 import math
 import os
 import re
+import ssl
 import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
-
 
 @dataclass
 class GradeResult:
@@ -122,15 +124,20 @@ def grade_essay(
     # Resolve configuration with sensible environment defaults. This allows
     # callers to omit parameters in typical deployments while also supporting
     # explicit overrides for tests or special environments.
-    #model = model or os.getenv("ESSAYGRADER_MODEL", "llama3.1:8b")
-    model = model or os.getenv("ESSAYGRADER_MODEL", "qwen2.5:14b-instruct")
-
+    openai_key = os.getenv("OPENAI_API_KEY")
+    openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    
+    model = model or os.getenv("ESSAYGRADER_MODEL", "llama3.1:8b")
+    print(f"model: {model}")
     base_url = base_url or os.getenv("ESSAYGRADER_OLLAMA_BASE_URL", "http://localhost:11434")
     base_url = base_url.rstrip("/")
 
-    # Try Ollama first; if it fails, fall back to heuristic grading.
+    # Try OpenAI if key is provided, otherwise try Ollama
     try:
-        # 1. Semantic Embedding Step (New)
+        if openai_key:
+            return _grade_with_openai(essay, requirements, openai_key, openai_model, temperature, timeout, max_points)
+        
+        # 1. Semantic Embedding Step
         # We ask the local model for vector embeddings of the essay and requirements.
         # This provides a mathematical "relevance" score (0.0 to 1.0).
         similarity_score = _compute_semantic_score(
@@ -261,13 +268,26 @@ def grade_essay(
         # We intentionally do not re-raise network/parse errors here to provide
         # a resilient API. The reason is included in the reasons list for
         # observability by callers.
+        
         coverage = _heuristic_coverage(essay, requirements)
         grade = _coverage_to_grade(coverage, max_points)
         deductions, total_ded = _synthesize_deductions(grade=grade, max_points=max_points, coverage=coverage)
+        
+        reason_msg = f"{type(e).__name__}: {e}"
         reasons = [
             "Local model unavailable or call failed; applied heuristic grading.",
-            f"Reason: {type(e).__name__}: {e}",
+            f"Reason: {reason_msg}",
         ]
+        # Specific help for common issues
+        if "404" in reason_msg:
+            available = _get_available_ollama_models(base_url)
+            if available:
+                reasons.append(f"Hint: Model '{model}' not found, but these are available: {', '.join(available)}. Try setting ESSAYGRADER_MODEL to one of them.")
+            else:
+                reasons.append(f"Hint: A 404 error often means the model '{model}' is not pulled. Try running 'ollama pull {model}'.")
+        elif "connection refused" in reason_msg.lower() or "11434" in reason_msg:
+            reasons.append("Hint: Ensure Ollama is running and accessible at " + (base_url or "http://localhost:11434"))
+
         return GradeResult(
             grade=grade,
             reasons=reasons,
@@ -387,21 +407,53 @@ def _compute_semantic_score(
         return None
 
 
-def _ollama_embedding(base_url: str, model: str, text: str, timeout: float) -> List[float]:
-    """Call Ollama's /api/embeddings endpoint."""
-    url = f"{base_url}/api/embeddings"
-    # Truncate text slightly to avoid context limit errors on embeddings if text is huge
-    payload = {
-        "model": model,
-        "prompt": text[:8000], 
-    }
-    data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+def _get_ssl_context() -> Optional[ssl.SSLContext]:
+    """Create an SSL context that does not verify certificates.
     
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        body = resp.read().decode("utf-8")
-        parsed = json.loads(body)
-        return parsed.get("embedding", [])
+    This is useful for local connections to Ollama or other local services
+    where SSL might be intercepted or using self-signed certificates.
+    """
+    try:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+    except Exception:
+        return None
+
+
+def _ollama_embedding(base_url: str, model: str, text: str, timeout: float) -> List[float]:
+    """Call Ollama's embedding API with fallback from /api/embed (newer) to /api/embeddings (older)."""
+    # 1. Try /api/embed first (newer batching API)
+    try:
+        url = f"{base_url}/api/embed"
+        payload = {"model": model, "input": text[:8000]}
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+        ctx = _get_ssl_context()
+        with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
+            body = resp.read().decode("utf-8")
+            parsed = json.loads(body)
+            # /api/embed returns "embeddings": [[...]]
+            if "embeddings" in parsed and isinstance(parsed["embeddings"], list) and len(parsed["embeddings"]) > 0:
+                return parsed["embeddings"][0]
+    except Exception:
+        pass
+
+    # 2. Fallback to /api/embeddings (older API)
+    try:
+        url = f"{base_url}/api/embeddings"
+        payload = {"model": model, "prompt": text[:8000]}
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+        ctx = _get_ssl_context()
+        with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
+            body = resp.read().decode("utf-8")
+            parsed = json.loads(body)
+            # /api/embeddings returns "embedding": [...]
+            return parsed.get("embedding", [])
+    except Exception:
+        return []
 
 
 def _cosine_similarity(v1: List[float], v2: List[float]) -> float:
@@ -437,7 +489,8 @@ def _ollama_generate(
     }
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
+    ctx = _get_ssl_context()
+    with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
         body = resp.read().decode("utf-8", errors="replace")
     # Ollama returns {"model":..., "created_at":..., "response": "...", "done": true}
     try:
@@ -519,6 +572,89 @@ def _heuristic_coverage(essay: str, requirements: List[str]) -> List[Dict[str, A
         })
 
     return coverage
+
+
+def _grade_with_openai(
+    essay: str,
+    requirements: List[str],
+    api_key: str,
+    model: str,
+    temperature: float,
+    timeout: float,
+    max_points: int,
+) -> Dict[str, Any]:
+    """Grade an essay using OpenAI's chat completion API."""
+    url = "https://api.openai.com/v1/chat/completions"
+    prompt = _build_prompt(essay, requirements, None, max_points)
+    
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "You are a helpful grading assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": temperature,
+        "response_format": {"type": "json_object"}
+    }
+    
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    })
+    
+    ctx = _get_ssl_context()
+    with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
+        body = resp.read().decode("utf-8")
+        parsed_resp = json.loads(body)
+        content = parsed_resp["choices"][0]["message"]["content"]
+        parsed = _parse_llm_json(content)
+        
+        if not parsed:
+             # Fallback logic similar to main grade_essay
+             coverage = _heuristic_coverage(essay, requirements)
+             grade = _coverage_to_grade(coverage, max_points)
+             deductions, total_ded = _synthesize_deductions(grade=grade, max_points=max_points, coverage=coverage)
+             return GradeResult(
+                grade=grade,
+                reasons=["OpenAI returned non-JSON content."],
+                coverage=coverage,
+                backend="openai",
+                model_used=model,
+                raw_response=content,
+                max_points=max_points,
+                deductions=deductions,
+                total_deductions=total_ded,
+            ).to_dict()
+
+        grade = int(max(0, min(max_points, int(parsed.get("grade", 0)))))
+        reasons = parsed.get("reasons") or []
+        coverage = parsed.get("coverage") or _heuristic_coverage(essay, requirements)
+        deductions, total_ded = _synthesize_deductions(grade=grade, max_points=max_points, coverage=coverage)
+        
+        return GradeResult(
+            grade=grade,
+            reasons=list(map(str, reasons)),
+            coverage=coverage,
+            backend="openai",
+            model_used=model,
+            raw_response=content,
+            max_points=max_points,
+            deductions=deductions,
+            total_deductions=total_ded,
+        ).to_dict()
+
+
+def _get_available_ollama_models(base_url: str) -> List[str]:
+    """Fetch list of pulled models from Ollama."""
+    try:
+        url = f"{base_url}/api/tags"
+        ctx = _get_ssl_context()
+        with urllib.request.urlopen(url, timeout=2.0, context=ctx) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return [m["name"] for m in data.get("models", [])]
+    except Exception:
+        return []
 
 
 def _simple_requirement_match(essay_lc: str, requirement: str) -> Tuple[bool, str]:

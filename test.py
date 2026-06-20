@@ -17,6 +17,7 @@ Usage examples:
 Environment variables respected by the underlying grader:
   - ESSAYGRADER_MODEL (default: "llama3.1:8b")
   - ESSAYGRADER_OLLAMA_BASE_URL (default: "http://localhost:11434")
+  - OPENAI_API_KEY (optional: if set, uses OpenAI)
 
 This script prints the grading result as pretty JSON.
 """
@@ -26,12 +27,12 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from typing import Any, Dict, List, Optional, Union
 from pathlib import Path
 
 from essaygrader import grade_essay
 
-
-def _read_text_file(path: str | Path) -> str:
+def _read_text_file(path: Union[str, Path]) -> str:
     p = Path(path)
     try:
         return p.read_text(encoding="utf-8")

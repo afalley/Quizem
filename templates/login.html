@@ -7,6 +7,9 @@
     </hgroup>
     
     <form method="post">
+      {% if request.args.get('next') %}
+        <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+      {% endif %}
       <label>
         Username
         <input type="text" name="username" required autofocus placeholder="Enter your username">
@@ -20,9 +23,9 @@
       <a role="button" class="outline" href="{{ url_for('index') }}" style="width: 100%;">Cancel</a>
     </form>
     
-    <div style="margin-top: 2rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem; font-size: 0.875rem; text-align: center;">
+    <div style="margin-top: 2rem; padding: 1rem; background: #f1f5f9; border-radius: 0.5rem; font-size: 0.875rem; text-align: center;">
       <p class="muted" style="margin-bottom: 0.5rem;">Default accounts for testing:</p>
-      <code>teacher/teacher</code> &nbsp; <code>student/student</code>
+      <code>admin/admin</code> &nbsp; <code>teacher/teacher</code> &nbsp; <code>student/student</code>
     </div>
   </article>
 {% endblock %}

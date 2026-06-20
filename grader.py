@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Union
 
 # Essay grading helper (local-first with fallback)
 from essaygrader import grade_essay
